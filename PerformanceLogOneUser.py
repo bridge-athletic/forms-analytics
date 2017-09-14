@@ -5,9 +5,11 @@ import numpy as np
 import pandas as pd
 import matplotlib.dates as mdates
 
+from Graph import *
 
 dates =  []
 values = []
+
 
 ##################### one user, one parameter #####################
 
@@ -22,23 +24,8 @@ values = []
 #       dates.append(date)
 #       values.append(row[3])
 
-# ## initialize the plot
-# fig, ax = plt.subplots()
-# ax.plot(dates, values)
-# ax.grid(True)
-
-# ax.set_ylim(0,5.5)
-
-# ax.format_xdata = mdates.DateFormatter('%Y-%m-%d')
-# ax.format_ydata = values
-
-# fig.autofmt_xdate()
-
-# ## set axes and title
-# ax.set_xlabel('Dates')
-# ax.set_ylabel('Values')
-# ax.set_title('User 4349, Parameter 492')
-# plt.show()
+# g = Graph('line', 'User 4349, Parameter 492', 5.5, 'Dates', 'Param Score', dates, values)
+# g.buildGraph()
 
 
 
@@ -73,31 +60,14 @@ values = []
 #   del values[idx]
 #   del dates[idx]
 
-# ## initialize the plot
-# fig, ax = plt.subplots()
-# ax.plot(dates, values)
-# ax.grid(True)
-
-# ax.set_ylim(0,37)
-
-# ax.format_xdata = mdates.DateFormatter('%Y-%m-%d')
-# ax.format_ydata = values
-
-# fig.autofmt_xdate()
-
-# ## set axes and title
-# ax.set_xlabel('Dates')
-# ax.set_ylabel('Values')
-# ax.set_title('User 4349, Form Score')
-# plt.show()
-
-
+# g = Graph('line', 'User 4349, Form Score', 37, 'Dates', 'Form Score', dates, values)
+# g.buildGraph()
 
 
 ##################### one user, submissions over #####################
 
 
-## open csv with performance log data for one athlete
+# open csv with performance log data for one athlete
 with open('PerformanceLogData_1user.csv') as performanceLogData:
   csvReader = csv.reader(performanceLogData)
   for row in csvReader:
@@ -111,26 +81,8 @@ for date in u_dates:
   submissions += 1
   values.append(submissions)
 
-print dates
-print values
-
-## initialize the plot
-fig, ax = plt.subplots()
-ax.plot(u_dates, values)
-ax.grid(True)
-
-ax.set_ylim(0,100)
-
-ax.format_xdata = mdates.DateFormatter('%Y-%m-%d')
-ax.format_ydata = values
-
-fig.autofmt_xdate()
-
-## set axes and title
-ax.set_xlabel('Dates')
-ax.set_ylabel('Values')
-ax.set_title('Submissions for User 4349')
-plt.show()
+g = Graph('line', 'User 4349, Form Submissions', 100, 'Dates', 'Form Submissions', u_dates, values)
+g.buildGraph()
 
 
 
