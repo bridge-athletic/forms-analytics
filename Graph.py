@@ -24,7 +24,7 @@ class Graph:
 
   # set graph type
   def set_graphtype(self, graphtype):
-    if (graphtype == 'line' or graphtype == None):
+    if (graphtype == 'line' or graphtype == 'histogram' or graphtype == None):
       self.graphtype = graphtype
     else:
       raise Exception('Not a valid graph type.')
@@ -87,6 +87,11 @@ class Graph:
       ax.set_ylabel(self.yname)
       ax.set_title(self.title)
       
+      plt.show()
+
+    if (self.graphtype == 'histogram'):
+      plt.hist(self.ydata, bins=25, range=(10,35))
+      plt.title(self.title)
       plt.show()
 
 
