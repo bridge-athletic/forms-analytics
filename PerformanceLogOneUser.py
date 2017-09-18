@@ -11,6 +11,8 @@ dates =  []
 values = []
 
 
+
+
 ##################### one user, one parameter #####################
 
 
@@ -59,7 +61,7 @@ for value in values:
 for val in remove:
   idx = values.index(val)
   del values[idx]
-  del dates[idx]
+  del dates[idb x]
 
 # g = Graph('line', 'User 4349, Form Score', 37, 'Dates', 'Form Score', dates, values)
 g = Graph('histogram', 'User 4349, Form Score', 37, 'Dates', 'Form Score', dates, values)

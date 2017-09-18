@@ -91,6 +91,7 @@ class Graph:
 
     if (self.graphtype == 'histogram'):
       plt.hist(self.ydata, bins=25, range=(10,35))
+      # add the labels for the axis here
       plt.title(self.title)
       plt.show()
 
