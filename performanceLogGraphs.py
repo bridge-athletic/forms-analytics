@@ -87,7 +87,7 @@ def parseDataFromCSV(filename):
         individualPerformanceLogData["overall"]["values"].append(int(row[3]))
 
 
-def individualParamTrend(data, params, subject):
+def individualParamTrend(params):
   ## initialize the plot
   fig, ax = plt.subplots()
   graphTitle = "Individual (userId 4349) Trends for "
@@ -199,7 +199,7 @@ def requestIndividualParamTrend():
   for param in paramList:
     graphParams[param] = 'true'
   
-  individualParamTrend(form_data, graphParams, graphSubject)
+  individualParamTrend(graphParams)
 
 
 
