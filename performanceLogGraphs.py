@@ -145,27 +145,30 @@ def individualParamTrend(data, params, subject):
   plt.show()
 
 
-def athleteFormScore()
-  # if (params['formscore'] == 'true'):
-  #   graphTitle = "Individual (userId 4349) Form Score"
-  #   values = data.iloc[[7]]
+def athleteFormScore(data):
 
-  #   ax.plot(dates, values, label='Form Score')
+  fig, ax = plt.subplots()
+  graphTitle = "Individual (userId 4349) Form Score"
+  dates = data["dates"]
+  values = data["values"]
+  ax.plot(dates, values, label='Form Score')
 
-  #   ax.grid(True)
-  #   ax.set_ylim(0, 38)
-  #   ax.format_xdata = mdates.DateFormatter('%Y-%m-%d')
-  #   fig.autofmt_xdate()
-  #   ax.legend(loc=3)
+  ax.grid(True)
+  ax.set_ylim(0, 38)
+  ax.format_xdata = mdates.DateFormatter('%Y-%m-%d')
+  fig.autofmt_xdate()
+  ax.legend(loc=3)
 
-  #   ## set axes and title
-  #   ax.set_xlabel('Dates')
-  #   ax.set_ylabel('Form Score (total)')
-  #   ax.set_title(graphTitle)
+  ## set axes and title
+  ax.set_xlabel('Dates')
+  ax.set_ylabel('Form Score (total)')
+  ax.set_title(graphTitle)
+
+  plt.show()
   
 
 def requestIndividualParamTrend():
-  form_data = parseDataFromCSV('Individual_performance_log_data.csv')
+  parseDataFromCSV('Individual_performance_log_data.csv')
 
   # initialize all to false
   graphParams = {
@@ -190,7 +193,30 @@ def requestIndividualParamTrend():
   individualParamTrend(form_data, graphParams, graphSubject)
 
 def requestIndividualFormScore():
+  parseDataFromCSV('Individual_performance_log_data.csv')
 
+  # process data for formscore
+  individualFormScore = {
+    "dates": [],
+    "values": []
+  }
+
+  # get all dates for all params
+  for param, data in individualPerformanceLogData.items():
+    for date in data["dates"]:
+      if date not in individualFormScore["dates"]:
+        individualFormScore["dates"].append(date)
+  
+  for date in individualFormScore["dates"]:
+    formscore_value = 0
+    for param, data in individualPerformanceLogData.items():
+      date_idx = data["dates"].index(date)
+      if date_idx >= 0:
+        formscore_value += data["values"][date_idx]
+    individualFormScore["values"].append(formscore_value)
+
+  # print individualFormScore
+  athleteFormScore(individualFormScore)
 
 
 def selectKPI():
