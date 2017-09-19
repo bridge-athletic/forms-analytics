@@ -22,7 +22,6 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 
-oneUserData = []
 dates = []
 params = [492, 493, 494, 495, 496, 497, 498]  ## this doesn't change
 
@@ -36,6 +35,7 @@ def parseDataFromCSV(filename):
   nutrition_data = {}
   hydration_data = {}
   overall_data = {}
+  formscore_data = {}
 
   with open(filename) as performanceLogData:
     csvReader = csv.reader(performanceLogData)
@@ -80,90 +80,42 @@ def parseDataFromCSV(filename):
         else:
           overall_data[date] = [int(row[3])]
 
-  # print dates
+  # oneUserData = pd.DataFrame(index=params, columns=dates)
+
   for date in dates:
     date_idx = int(dates.index(date))
     formscore = 0
-
+    if (len(fatigue_data[date]) > 1):
+      fatigue_data[date] = np.average(fatigue_data[date])
+      formscore += fatigue_data[date]
+    if (len(soreness_data[date]) > 1):
+      soreness_data[date] = np.average(soreness_data[date])
+      formscore += soreness_data[date]
+    if (len(stress_data[date]) > 1):
+      stress_data[date] = np.average(stress_data[date])
+      formscore += stress_data[date]
+    if (len(sleep_data[date]) > 1):
+      sleep_data[date] = np.average(sleep_data[date])
+      formscore += sleep_data[date]
+    if (len(nutrition_data[date]) > 1):
+      nutrition_data[date] = np.average(nutrition_data[date])
+      formscore += nutrition_data[date]
+    if (len(hydration_data[date]) > 1):
+      hydration_data[date] = np.average(hydration_data[date])
+      formscore += hydration_data[date]
+    if (len(overall_data[date]) > 1):
+      overall_data[date] = np.average(overall_data[date])
+      formscore += overall_data[date]
+    formscore_data[date] = formscore
     
-    # fill fatigue data
-    if (date not in fatigue_data.keys()):
-      oneUserData[0][date_idx] = -1
-    elif (len(fatigue_data[date]) > 1):
-      oneUserData[0][date_idx] = np.average(fatigue_data[date])
-      formscore += np.average(fatigue_data[date])
-    else:
-      oneUserData[0][date_idx].append(fatigue_data[0])
-      formscore += fatigue_data[0]
+  oneUserData = pd.DataFrame([fatigue_data, soreness_data, stress_data, sleep_data, nutrition_data, hydration_data, overall_data, formscore_data])
+  return oneUserData
 
-    # fill soreness data
-    if (date not in soreness_data.keys()):
-      oneUserData[1][date_idx] = -1
-    elif (len(soreness_data[date]) > 1):
-      oneUserData[1][date_idx] = np.average(soreness_data[date])
-      formscore += np.average(soreness_data[date])
-    else:
-      oneUserData[1][date_idx] = soreness_data[0]
-      formscore += soreness_data[0]
+def timeseries(data, params, subject):
 
-    # fill stress data
-    if (date not in stress_data.keys()):
-      oneUserData[2][date_idx] = -1
-    elif (len(stress_data[date]) > 1):
-      oneUserData[2][date_idx] = np.average(stress_data[date])
-      formscore += np.average(stress_data[date])
-    else:
-      oneUserData[2][date_idx] = stress_data[0]
-      formscore += stress_data[0]
-
-    # fill sleep data
-    if (date not in sleep_data.keys()):
-      oneUserData[3][date_idx] = -1
-    elif (len(sleep_data[date]) > 1):
-      oneUserData[3][date_idx] = np.average(sleep_data[date])
-      formscore += np.average(sleep_data[date])
-    else:
-      oneUserData[3][date_idx] = sleep_data[0]
-      formscore += sleep_data[0]
-
-    # fill nutrition data
-    if (date not in nutrition_data.keys()):
-      oneUserData[4][date_idx] = -1
-    elif (len(nutrition_data[date]) > 1):
-      oneUserData[4][date_idx] = np.average(nutrition_data[date])
-      formscore += np.average(nutrition_data[date])
-    else:
-      oneUserData[4][date_idx] = nutrition_data[0]
-      formscore += nutrition_data[0]
-
-    # fill hydration data
-    if (date not in hydration_data.keys()):
-      oneUserData[5][date_idx] = -1
-    elif (len(hydration_data[date]) > 1):
-      oneUserData[5][date_idx] = np.average(hydration_data[date])
-      formscore += np.average(hydration_data[date])
-    else:
-      oneUserData[5][date_idx] = hydration_data[0]
-      formscore += hydration_data[0]
-
-    # fill overall data
-    if (date not in overall_data.keys()):
-      oneUserData[6][date_idx] = -1
-    elif (len(overall_data[date]) > 1):
-      oneUserData[6][date_idx] = np.average(overall_data[date])
-      formscore += np.average(overall_data[date])
-    else:
-      oneUserData[6][date_idx] = overall_data[0]
-      formscore += overall_data[0]
-
-    # fill form score data
-    oneUserData[7][date_idx] = formscore
-
-
-
-
-def timeseries(params, subject):
-
+  # print data
+  print data.loc[0]
+  print len(dates)
 
   # initialize the plot
   fig, ax = plt.subplots()
@@ -171,9 +123,7 @@ def timeseries(params, subject):
 
   if (params['formscore'] == 'true'):
     graphTitle = "Individual (userId 4349) Form Score"
-    values = []
-    for value in oneUserData[7]:
-      values.append(value)
+    values = data.iloc[[7]]
 
     ax.plot(dates, values, label='Form Score')
 
@@ -191,54 +141,40 @@ def timeseries(params, subject):
   else:
     graphTitle = "Individual (userId 4349) Trends for "
 
+    if (params['fatigue'] == 'true'):
+      values = data.iloc[[0]]
+      ax.plot(dates, values, label='fatigue')
+      graphTitle += 'Fatigue '
+
+    if (params['soreness'] == 'true'):
+      values = data.iloc[[1]]
+      ax.plot(dates, values, label='soreness')
+      graphTitle += 'Soreness '
+
+    if (params['stress'] == 'true'):
+      values = data.iloc[[2]]
+      ax.plot(dates, values, label='stress')
+      graphTitle += 'Stress '
+
     # add slepe trend
     if (params['sleep'] == 'true'):
-      values = []
-      for value in oneUserData[3]:
-        values.append(value)
+      values = data.iloc[[3]]
       ax.plot(dates, values, label='sleep')
       graphTitle += 'Sleep '
 
     # add slepe trend
     if (params['hydration'] == 'true'):
-      values = []
-      for value in oneUserData[5]:
-        values.append(value)
+      values = data.iloc[[4]]
       ax.plot(dates, values, label='hydration')
       graphTitle += 'Hydration '
     
     if (params['nutrition'] == 'true'):
-      values = []
-      for value in oneUserData[4]:
-        values.append(value)
+      values = data.iloc[[5]]
       ax.plot(dates, values, label='nutrition')
       graphTitle += 'Nutrition '
     
-    if (params['stress'] == 'true'):
-      values = []
-      for value in oneUserData[2]:
-        values.append(value)
-      ax.plot(dates, values, label='stress')
-      graphTitle += 'Stress '
-    
-    if (params['fatigue'] == 'true'):
-      values = []
-      for value in oneUserData[0]:
-        values.append(value)
-      ax.plot(dates, values, label='fatigue')
-      graphTitle += 'Fatigue '
-    
-    if (params['soreness'] == 'true'):
-      values = []
-      for value in oneUserData[1]:
-        values.append(value)
-      ax.plot(dates, values, label='soreness')
-      graphTitle += 'Soreness '
-    
     if (params['overall'] == 'true'):
-      values = []
-      for value in oneUserData[6]:
-        values.append(value)
+      values = data.iloc[[6]]
       ax.plot(dates, values, label='overall')
       graphTitle += 'Overall '
 
@@ -258,13 +194,7 @@ def timeseries(params, subject):
 
 def graphRequest(trend, graphSubject):
 
-  # # parse the file with team data
-  # if (graphSubject == 'team'):
-  #   parseDataFromCSV('Group_performance_log_data.csv')
-
-  # parse the file with individual data
-  if (graphSubject == 'individual'):
-    parseDataFromCSV('Individual_performance_log_data.csv')
+  form_data = parseDataFromCSV('Individual_performance_log_data.csv')
 
   # initialize all to false
   params = ''
@@ -292,7 +222,7 @@ def graphRequest(trend, graphSubject):
   elif (trend == 'form score'):
     graphParams.formscore = 'true'
   
-  timeseries(graphParams, graphSubject)
+  timeseries(form_data, graphParams, graphSubject)
 
 
 def selectKPI():
