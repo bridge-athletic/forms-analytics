@@ -10,16 +10,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 
-# paramIdMap = {
-#   "492": "fatigue",
-#   "493": "soreness",
-#   "494": "stress",
-#   "495": "sleep",
-#   "496": "nutrition",
-#   "497": "hydration",
-#   "498": "overall"
-# }
-
+## this can be scaled to include many athletes
 individualPerformanceLogData = {
   "fatigue": {
     "dates": [],
@@ -57,36 +48,52 @@ def parseDataFromCSV(filename):
   with open(filename) as performanceLogData:
     csvReader = csv.reader(performanceLogData)
     for row in csvReader:
+      ## convert date to YYYY-MM-DD
       date = datetime.date.fromtimestamp(int(row[2]))
       
+      ## fatigue data; parameterId 492
       if (int(row[1]) == 492):
         individualPerformanceLogData["fatigue"]["dates"].append(date)
         individualPerformanceLogData["fatigue"]["values"].append(int(row[3]))
+      
+      ## soreness data; parameterId 493
       if (int(row[1]) == 493):
         individualPerformanceLogData["soreness"]["dates"].append(date)
         individualPerformanceLogData["soreness"]["values"].append(int(row[3]))
+      
+      ## stress data; parameterId 494
       if (int(row[1]) == 494):
         individualPerformanceLogData["stress"]["dates"].append(date)
         individualPerformanceLogData["stress"]["values"].append(int(row[3]))
+      
+      ## sleep data; parameterId 495
       if (int(row[1]) == 495):
         individualPerformanceLogData["sleep"]["dates"].append(date)
         individualPerformanceLogData["sleep"]["values"].append(int(row[3]))
+      
+      ## nutrition data; parameterId 496
       if (int(row[1]) == 496):
         individualPerformanceLogData["nutrition"]["dates"].append(date)
         individualPerformanceLogData["nutrition"]["values"].append(int(row[3]))
+      
+      ## hydration data; parameterId 497
       if (int(row[1]) == 497):
         individualPerformanceLogData["hydration"]["dates"].append(date)
         individualPerformanceLogData["hydration"]["values"].append(int(row[3]))
+      
+      ## overall data; parameterId 498
       if (int(row[1]) == 498):
         individualPerformanceLogData["overall"]["dates"].append(date)
         individualPerformanceLogData["overall"]["values"].append(int(row[3]))
 
 
 def individualParamTrend(data, params, subject):
-  # initialize the plot
+  ## initialize the plot
   fig, ax = plt.subplots()
   graphTitle = "Individual (userId 4349) Trends for "
 
+  ## add all params indicated by user
+  ## each block adds a new plot to the figure
   if (params['fatigue'] == 'true'):
     dates = individualPerformanceLogData["fatigue"]["dates"]
     values = individualPerformanceLogData["fatigue"]["values"]
@@ -105,14 +112,12 @@ def individualParamTrend(data, params, subject):
     ax.plot(dates, values, label='stress')
     graphTitle += 'Stress '
 
-  # add slepe trend
   if (params['sleep'] == 'true'):
     dates = individualPerformanceLogData["sleep"]["dates"]
     values = individualPerformanceLogData["sleep"]["values"] 
     ax.plot(dates, values, label='sleep')
     graphTitle += 'Sleep '
 
-  # add slepe trend
   if (params['hydration'] == 'true'):
     dates = individualPerformanceLogData["hydration"]["dates"]
     values = individualPerformanceLogData["hydration"]["values"] 
@@ -132,7 +137,7 @@ def individualParamTrend(data, params, subject):
     graphTitle += 'Overall '
 
   ax.grid(True)
-  ax.set_ylim(0, 5.5)
+  ax.set_ylim(0, 5.5)   ## setting to 5.5 to give room at the top of the graph
   ax.format_xdata = mdates.DateFormatter('%Y-%m-%d')
   fig.autofmt_xdate()
   ax.legend(loc=3)
@@ -167,7 +172,10 @@ def athleteFormScore(data):
   plt.show()
   
 
+
+
 def requestIndividualParamTrend():
+  ## Data needs to be organized and parsed 
   parseDataFromCSV('Individual_performance_log_data.csv')
 
   # initialize all to false
@@ -182,6 +190,7 @@ def requestIndividualParamTrend():
     'formscore': 'false'
   }
 
+  ## Prompting user to input the specific params they want to see
   print
   print("You can see trends for the following parameters: sleep, hydration, nutrition, stress, fatigue, soreness or overall.")
   params = raw_input('Please input params separated by a comma: ')
@@ -192,7 +201,11 @@ def requestIndividualParamTrend():
   
   individualParamTrend(form_data, graphParams, graphSubject)
 
+
+
+
 def requestIndividualFormScore():
+  ## Data needs to be organized and parsed 
   parseDataFromCSV('Individual_performance_log_data.csv')
 
   # process data for formscore
@@ -219,6 +232,10 @@ def requestIndividualFormScore():
   athleteFormScore(individualFormScore)
 
 
+
+
+## Currently this only shows data for one user
+## TODO: allow file input to show other users
 def selectKPI():
   print("Available KPIs to view: ")
   print(" (A) Athlete Param History")
@@ -226,13 +243,17 @@ def selectKPI():
 
   KPI = raw_input("Please select one from the list above: ")
 
+  ## Option A: showing individual param trend history over time
   if ((KPI == 'A') or (KPI == '(A)') or (KPI == 'a')):
     requestIndividualParamTrend()
+  ## Option B: showing the total form score for one athlete over time
   elif ((KPI == 'B') or (KPI == '(B)') or (KPI == 'b')):
     requestIndividualFormScore()
 
 
-
+################
+#  START HERE  #
+################
 
 selectKPI()
 
