@@ -7,203 +7,267 @@
 # AND formquestionid in (103, 104, 105, 106, 107, 108, 109) 
 # LIMIT 100000;
 
+#  492 = fatigue
+#  493 = soreness
+#  494 = stress
+#  495 = sleep
+#  496 = nutrition
+#  497 = hydration
+#  498 = overall
+
 import csv
 import datetime
+import numpy as np
+import pandas as pd
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 
-# initialize each set of data 
-sleepDates = []
-sleepValues = []
-sorenessDates = []
-sorenessValues =[]
-fatigueDates = []
-fatigueValues =[]
-stressDates = []
-stressValues =[]
-nutritionDates = []
-nutritionValues =[]
-hydrationDates = []
-hydrationValues =[]
-overallDates = []
-overallValues =[]
-formScoreDates = []
-formScoreValues = []
+oneUserData = []
+dates = []
+params = [492, 493, 494, 495, 496, 497, 498]  ## this doesn't change
 
-# takes a file with performance log data from one user and 
-# parses the data into arrays so it can be plotted
-def parseDataFromFile(filename):
-# def parseDataFromFile(filename, daterange):
+# takes a file with performance log data for one user 
+def parseDataFromCSV(filename):
 
-  # start_date = None
-  # if (daterange = 30):
-  #   start_date = datetime.datetime.now() + datetime.timedelta(-30)
-  #   print start_date
-  # if (daterange = 30):
-  #   start_date = datetime.datetime.now() + datetime.timedelta(-30)
-  #   print start_date
+  fatigue_data = {}
+  soreness_data = {}
+  stress_data = {}
+  sleep_data = {}
+  nutrition_data = {}
+  hydration_data = {}
+  overall_data = {}
 
-
-  # fill the empty lists from above
   with open(filename) as performanceLogData:
     csvReader = csv.reader(performanceLogData)
     for row in csvReader:
       date = datetime.date.fromtimestamp(int(row[2]))
-
-      # TODO: make one function and pass in the parameterId and two lists
-      if (int(row[1]) == 492):  # parameter = fatigue
-        if (date in fatigueDates):
-          # if date already in the list, average the values
-          idx = fatigueDates.index(date)
-          fatigueValues[idx] = (fatigueValues[idx] + int(row[3]))/2
-        else:
-          # otherwise add the date and value to the lists
-          fatigueDates.append(date)
-          fatigueValues.append(int(row[3]))
+      if (date not in dates): 
+        dates.append(date)
       
-      elif (int(row[1]) == 493):  # parameter = soreness
-        if (date in sorenessDates):
-          # if date already in the list, average the values
-          idx = sorenessDates.index(date)
-          sorenessValues[idx] = (sorenessValues[idx] + int(row[3]))/2
+      if (int(row[1]) == 492):
+        if (date in fatigue_data.keys()):
+          fatigue_data[date].append(int(row[3]))
         else:
-          # otherwise add the date and value to the lists
-          sorenessDates.append(date)
-          sorenessValues.append(int(row[3]))
+          fatigue_data[date] = [int(row[3])]
+      if (int(row[1]) == 493):
+        if (date in soreness_data.keys()):
+          soreness_data[date].append(int(row[3]))
+        else:
+          soreness_data[date] = [int(row[3])]
+      if (int(row[1]) == 494):
+        if (date in stress_data.keys()):
+          stress_data[date].append(int(row[3]))
+        else:
+          stress_data[date] = [int(row[3])]
+      if (int(row[1]) == 495):
+        if (date in sleep_data.keys()):
+          sleep_data[date].append(int(row[3]))
+        else:
+          sleep_data[date] = [int(row[3])]
+      if (int(row[1]) == 496):
+        if (date in nutrition_data.keys()):
+          nutrition_data[date].append(int(row[3]))
+        else:
+          nutrition_data[date] = [int(row[3])]
+      if (int(row[1]) == 497):
+        if (date in hydration_data.keys()):
+          hydration_data[date].append(int(row[3]))
+        else:
+          hydration_data[date] = [int(row[3])]
+      if (int(row[1]) == 498):
+        if (date in overall_data.keys()):
+          overall_data[date].append(int(row[3]))
+        else:
+          overall_data[date] = [int(row[3])]
 
-      elif (int(row[1]) == 494):
-      # parameter = stress
-        if (date in stressDates):
-          # if date already in the list, average the values
-          idx = stressDates.index(date)
-          stressValues[idx] = (stressValues[idx] + int(row[3]))/2
-        else:
-          # otherwise add the date and value to the lists
-          stressDates.append(date)
-          stressValues.append(int(row[3]))
+  # print dates
+  for date in dates:
+    date_idx = int(dates.index(date))
+    formscore = 0
 
-      elif (int(row[1]) == 495):
-      # parameter = sleep
-        if (date in sleepDates):
-          # if date already in the list, average the values
-          idx = sleepDates.index(date)
-          sleepValues[idx] = (sleepValues[idx] + int(row[3]))/2
-        else:
-          # otherwise add the date and value to the lists
-          sleepDates.append(date)
-          sleepValues.append(int(row[3]))
+    
+    # fill fatigue data
+    if (date not in fatigue_data.keys()):
+      oneUserData[0][date_idx] = -1
+    elif (len(fatigue_data[date]) > 1):
+      oneUserData[0][date_idx] = np.average(fatigue_data[date])
+      formscore += np.average(fatigue_data[date])
+    else:
+      oneUserData[0][date_idx].append(fatigue_data[0])
+      formscore += fatigue_data[0]
 
-      elif (int(row[1]) == 496):
-      # parameter = nutrition
-        if (date in nutritionDates):
-          # if date already in the list, average the values
-          idx = nutritionDates.index(date)
-          nutritionValues[idx] = (nutritionValues[idx] + int(row[3]))/2
-        else:
-          # otherwise add the date and value to the lists
-          nutritionDates.append(date)
-          nutritionValues.append(int(row[3]))
+    # fill soreness data
+    if (date not in soreness_data.keys()):
+      oneUserData[1][date_idx] = -1
+    elif (len(soreness_data[date]) > 1):
+      oneUserData[1][date_idx] = np.average(soreness_data[date])
+      formscore += np.average(soreness_data[date])
+    else:
+      oneUserData[1][date_idx] = soreness_data[0]
+      formscore += soreness_data[0]
 
-      elif (int(row[1]) == 497):
-      # parameter = hydration
-        if (date in hydrationDates):
-          # if date already in the list, average the values
-          idx = hydrationDates.index(date)
-          hydrationValues[idx] = (hydrationValues[idx] + int(row[3]))/2
-        else:
-          # otherwise add the date and value to the lists
-          hydrationDates.append(date)
-          hydrationValues.append(int(row[3]))
+    # fill stress data
+    if (date not in stress_data.keys()):
+      oneUserData[2][date_idx] = -1
+    elif (len(stress_data[date]) > 1):
+      oneUserData[2][date_idx] = np.average(stress_data[date])
+      formscore += np.average(stress_data[date])
+    else:
+      oneUserData[2][date_idx] = stress_data[0]
+      formscore += stress_data[0]
 
-      elif (int(row[1]) == 498):
-      # parameter = overall
-        if (date in overallDates):
-          # if date already in the list, average the values
-          idx = overallDates.index(date)
-          overallValues[idx] = (overallValues[idx] + int(row[3]))/2
-        else:
-          # otherwise add the date and value to the lists
-          overallDates.append(date)
-          overallValues.append(int(row[3]))
+    # fill sleep data
+    if (date not in sleep_data.keys()):
+      oneUserData[3][date_idx] = -1
+    elif (len(sleep_data[date]) > 1):
+      oneUserData[3][date_idx] = np.average(sleep_data[date])
+      formscore += np.average(sleep_data[date])
+    else:
+      oneUserData[3][date_idx] = sleep_data[0]
+      formscore += sleep_data[0]
+
+    # fill nutrition data
+    if (date not in nutrition_data.keys()):
+      oneUserData[4][date_idx] = -1
+    elif (len(nutrition_data[date]) > 1):
+      oneUserData[4][date_idx] = np.average(nutrition_data[date])
+      formscore += np.average(nutrition_data[date])
+    else:
+      oneUserData[4][date_idx] = nutrition_data[0]
+      formscore += nutrition_data[0]
+
+    # fill hydration data
+    if (date not in hydration_data.keys()):
+      oneUserData[5][date_idx] = -1
+    elif (len(hydration_data[date]) > 1):
+      oneUserData[5][date_idx] = np.average(hydration_data[date])
+      formscore += np.average(hydration_data[date])
+    else:
+      oneUserData[5][date_idx] = hydration_data[0]
+      formscore += hydration_data[0]
+
+    # fill overall data
+    if (date not in overall_data.keys()):
+      oneUserData[6][date_idx] = -1
+    elif (len(overall_data[date]) > 1):
+      oneUserData[6][date_idx] = np.average(overall_data[date])
+      formscore += np.average(overall_data[date])
+    else:
+      oneUserData[6][date_idx] = overall_data[0]
+      formscore += overall_data[0]
+
+    # fill form score data
+    oneUserData[7][date_idx] = formscore
+
+
 
 
 def timeseries(params, subject):
 
+
   # initialize the plot
   fig, ax = plt.subplots()
   graphTitle = ''
-  if ((subject == 'team') or (subject == 'Team')):
-    graphTitle = "Team Trend for "
+
+  if (params['formscore'] == 'true'):
+    graphTitle = "Individual (userId 4349) Form Score"
+    values = []
+    for value in oneUserData[7]:
+      values.append(value)
+
+    ax.plot(dates, values, label='Form Score')
+
+    ax.grid(True)
+    ax.set_ylim(0, 38)
+    ax.format_xdata = mdates.DateFormatter('%Y-%m-%d')
+    fig.autofmt_xdate()
+    ax.legend(loc=3)
+
+    ## set axes and title
+    ax.set_xlabel('Dates')
+    ax.set_ylabel('Form Score (total)')
+    ax.set_title(graphTitle)
+  
   else:
     graphTitle = "Individual (userId 4349) Trends for "
 
-  # add all requested trends
-  if (params['sleep'] == 'true'):
-    ax.plot(sleepDates, sleepValues, label='sleep')
-    graphTitle += 'Sleep '
-  if (params['hydration'] == 'true'):
-    ax.plot(hydrationDates, hydrationValues, label='hydration')
-    graphTitle += 'Hydration '
-  if (params['nutrition'] == 'true'):
-    ax.plot(nutritionDates, nutritionValues, label='nutrition')
-    graphTitle += 'Nutrition '
-  if (params['stress'] == 'true'):
-    ax.plot(stressDates, stressValues, label='stress')
-    graphTitle += 'Stress '
-  if (params['fatigue'] == 'true'):
-    ax.plot(fatigueDates, fatigueValues, label='fatigue')
-    graphTitle += 'Fatigue '
-  if (params['soreness'] == 'true'):
-    ax.plot(sorenessDates, sorenessValues, label='soreness')
-    graphTitle += 'Soreness '
-  if (params['overall'] == 'true'):
-    ax.plot(overallDates, overallValues, label='overall')
-    graphTitle += 'Overall '
+    # add slepe trend
+    if (params['sleep'] == 'true'):
+      values = []
+      for value in oneUserData[3]:
+        values.append(value)
+      ax.plot(dates, values, label='sleep')
+      graphTitle += 'Sleep '
 
-  ax.grid(True)
-  ax.set_ylim(0, 5.5)
-  ax.format_xdata = mdates.DateFormatter('%Y-%m-%d')
-  fig.autofmt_xdate()
-  ax.legend(loc=3)
+    # add slepe trend
+    if (params['hydration'] == 'true'):
+      values = []
+      for value in oneUserData[5]:
+        values.append(value)
+      ax.plot(dates, values, label='hydration')
+      graphTitle += 'Hydration '
+    
+    if (params['nutrition'] == 'true'):
+      values = []
+      for value in oneUserData[4]:
+        values.append(value)
+      ax.plot(dates, values, label='nutrition')
+      graphTitle += 'Nutrition '
+    
+    if (params['stress'] == 'true'):
+      values = []
+      for value in oneUserData[2]:
+        values.append(value)
+      ax.plot(dates, values, label='stress')
+      graphTitle += 'Stress '
+    
+    if (params['fatigue'] == 'true'):
+      values = []
+      for value in oneUserData[0]:
+        values.append(value)
+      ax.plot(dates, values, label='fatigue')
+      graphTitle += 'Fatigue '
+    
+    if (params['soreness'] == 'true'):
+      values = []
+      for value in oneUserData[1]:
+        values.append(value)
+      ax.plot(dates, values, label='soreness')
+      graphTitle += 'Soreness '
+    
+    if (params['overall'] == 'true'):
+      values = []
+      for value in oneUserData[6]:
+        values.append(value)
+      ax.plot(dates, values, label='overall')
+      graphTitle += 'Overall '
 
-  ## set axes and title
-  ax.set_xlabel('Dates')
-  ax.set_ylabel('Values')
-  ax.set_title(graphTitle)
+    ax.grid(True)
+    ax.set_ylim(0, 5.5)
+    ax.format_xdata = mdates.DateFormatter('%Y-%m-%d')
+    fig.autofmt_xdate()
+    ax.legend(loc=3)
+
+    ## set axes and title
+    ax.set_xlabel('Dates')
+    ax.set_ylabel('Values')
+    ax.set_title(graphTitle)
   
   plt.show()
 
 
-def graphRequest(graphSubject):
-  # prompt user for the details 
-  # graphSubject = raw_input('Team or individual results? ')
-  # if (graphSubject not in ['team', 'Team', 'individual', 'Individual']):
-  #   print ("Invalid entry, please try again.")
-  #   graphSubject = raw_input('Team or individual results? ')
-  print
-  print
-  print("You can see trends for the following parameters: sleep, hydration, nutrition, stress, fatigue, soreness, overall or the form score.")
-  params = raw_input('Please input params separated by a comma: ')
-  
-  # print
-  # print("You can see trends for the past 30 day, 90 days or all data.")
-  # timeRange = raw_input('Please select 30, 90 or all')
+def graphRequest(trend, graphSubject):
 
-  # dateRange = 0
-  # if ((timeRange = 30) or (timeRange = 90):
-  #   dateRange = timeRange
-
-  # parse the file with team data
-  if ((graphSubject == 'team') or (graphSubject == 'Team')):
-    parseDataFromFile('Group_performance_log_data.csv')
+  # # parse the file with team data
+  # if (graphSubject == 'team'):
+  #   parseDataFromCSV('Group_performance_log_data.csv')
 
   # parse the file with individual data
-  if ((graphSubject == 'individual') or (graphSubject == 'Individual')):
-    parseDataFromFile('Individual_performance_log_data.csv')
+  if (graphSubject == 'individual'):
+    parseDataFromCSV('Individual_performance_log_data.csv')
 
-  paramList = [p.strip() for p in params.split(',')]
-  
   # initialize all to false
+  params = ''
   graphParams = {
     'sleep': 'false',
     'hydration': 'false',
@@ -212,32 +276,41 @@ def graphRequest(graphSubject):
     'fatigue': 'false',
     'soreness': 'false',
     'overall': 'false',
+    'formscore': 'false'
   }
-  for param in paramList:
-    graphParams[param] = 'true'
 
+  if (trend == 'param history'):
+    print
+    print("You can see trends for the following parameters: sleep, hydration, nutrition, stress, fatigue, soreness or overall.")
+    params = raw_input('Please input params separated by a comma: ')
+
+    paramList = [p.strip() for p in params.split(',')]
+    
+    for param in paramList:
+      graphParams[param] = 'true'
+    
+  elif (trend == 'form score'):
+    graphParams.formscore = 'true'
+  
   timeseries(graphParams, graphSubject)
-
-def complianceRequest(subject):
-  print "working on this!"
 
 
 def selectKPI():
   print("Available KPIs to view: ")
-  print (" (A) Athlete Param History")
-  print (" (B) Team Param History")
-  print (" (C) Athlete Compliance")
-  print (" (D) Team Compliance")
+  print(" (A) Athlete Param History")
+  print(" (B) Athlete Form Score")
+  # print(" (C) Team Param History")
+  # print(" (D) Team Form Score")
   KPI = raw_input("Please select one from the list above: ")
 
   if ((KPI == 'A') or (KPI == '(A)') or (KPI == 'a')):
-    graphRequest("individual")
+    graphRequest('param history', 'individual')
   elif ((KPI == 'B') or (KPI == '(B)') or (KPI == 'b')):
-    graphRequest("team")
-  elif ((KPI == 'C') or (KPI == '(C)') or (KPI == 'c')):
-    complianceRequest("individual")
-  elif ((KPI == 'D') or (KPI == '(D)') or (KPI == 'd')):
-    complianceRequest("team")
+    graphRequest('form score', 'individual')
+  # elif ((KPI == 'C') or (KPI == '(C)') or (KPI == 'c')):
+  #   complianceRequest('param history', 'team')
+  # elif ((KPI == 'D') or (KPI == '(D)') or (KPI == 'd')):
+  #   complianceRequest('form score', 'team')
 
 
 
