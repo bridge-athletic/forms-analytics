@@ -199,7 +199,7 @@ def requestIndividualParamTrend():
   for param in paramList:
     graphParams[param] = 'true'
   
-  individualParamTrend(graphParams)
+  # individualParamTrend(graphParams)
 
 
 
@@ -255,7 +255,7 @@ def selectKPI():
 #  START HERE  #
 ################
 
-selectKPI()
+# selectKPI()
 
 
 
