@@ -53,13 +53,14 @@ for i, date in enumerate(datesUniqueSet):
 
 #### Plotting data
 fig, ax = plt.subplots()
-ax.plot(datesRaw, valuesRaw)
-ax.plot(datesUnique, valuesUniqueMean)
-ax.plot(datesUnique, valuesUniqueMax)
+ax.plot(datesUnique, valuesUniqueMean, label='Unique Mean')
+ax.plot(datesUnique, valuesUniqueMax, label='Unique Max')
+ax.plot(datesRaw, valuesRaw, label='Raw Data')
 ax.grid(True)
 # ax.set_ylim(0, 38)
 ax.format_xdata = mdates.DateFormatter('%Y-%m-%d')
 fig.autofmt_xdate()
+ax.legend(loc=4)
 ## set axes and title
 ax.set_xlabel('Dates')
 ax.set_ylabel(parameterName)

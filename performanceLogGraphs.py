@@ -227,38 +227,3 @@ def athleteFormScore(data):
 
 
 
-
-
-
-
-
-
-
-
-# ## Currently this only shows data for one user
-# ## TODO: allow file input to show other users
-# def selectKPI():
-#   print("Available KPIs to view: ")
-#   print(" (A) Athlete Param History")
-#   print(" (B) Athlete Form Score")
-
-#   KPI = raw_input("Please select one from the list above: ")
-
-#   ## Option A: showing individual param trend history over time
-#   if ((KPI == 'A') or (KPI == '(A)') or (KPI == 'a')):
-#     requestIndividualParamTrend()
-#   ## Option B: showing the total form score for one athlete over time
-#   elif ((KPI == 'B') or (KPI == '(B)') or (KPI == 'b')):
-#     requestIndividualFormScore()
-
-
-# ################
-# #  START HERE  #
-# ################
-
-# selectKPI()
-
-
-
-
-
