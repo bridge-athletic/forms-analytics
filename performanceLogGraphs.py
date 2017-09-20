@@ -90,14 +90,15 @@ def loadData_oneUser(filecsv):
 
   return individualPerformanceLogData
 
-#### FUNCTION: takes the csv, calls function to organize it then creates same object after mean processing
+
+#### FUNCTION: processes data with means, uses the loadData function
 def dataPostMeanProcessing_oneUser(filecsv):
   rawData = loadData_oneUser(filecsv)
   dataPostProcessing = {}
 
-  for param, data in rawData:
-    datesRaw = dataRaw[param]['dates']
-    valuesRaw = dataRaw[param]['values']
+  for param, data in rawData.items():
+    datesRaw = rawData[param]['dates']
+    valuesRaw = rawData[param]['values']
 
     datesUniqueSet = sorted(list(set(datesRaw)))
 
@@ -131,31 +132,221 @@ def dataPostMeanProcessing_oneUser(filecsv):
   return dataPostProcessing
 
 
-#### FUNCTION: takes list of params to be graphed
-def requestIndividualParamTrend(individualData, params):
+#### FUNCTION: calculates form score, uses the dataPostMeanProcessing function
+def dataWithFormScore(filecsv):
+  processedData = dataPostMeanProcessing_oneUser(filecsv)
+  processedData["total"] = {
+    "dates": [],
+    "values": []
+  }
+
+  allDates = []
+  # build array with all dates from each param list
+  for param, data in processedData.items():
+    allDates += data['dates']
+
+  uniqueAllDates = sorted(list(set(allDates)))
+  for uniqueDate in uniqueAllDates:
+    # Initialize to hold the values for each date
+    sumValue = 0
+    numParams = 0
+    
+    for param, data in processedData.items():
+
+      if uniqueDate in data["dates"]:
+        idx = data["dates"].index(uniqueDate)
+        sumValue += data["values"][idx]
+        numParams += 1
+
+    processedData["total"]["dates"].append(uniqueDate)
+    maxPts = numParams*5
+    processedData["total"]["values"].append((sumValue*100)/maxPts)
+
+  return processedData
+
+
+#### FUNCTION: calculates 7 pt moving average
+def dataPointMovingAverage(filecsv):
+  processedData = dataWithFormScore(filecsv)
+
+  individualAvgData = {}
+
+  for param, data in processedData.items():
+    ## Start at 7th spot since creating a 7 point moving average
+    idx = 7
+
+    ## Initialize temp lists to hold data as we calculate it
+    dates = []
+    movingAvg = []
+    
+    ## Get averages for each day until reach the last date in list
+    while idx < len(data["dates"]):
+      ## Store date of moving average below
+      dates.append(data["dates"][idx])
+      
+      ## Average past 7 days and store in temp list
+      mvgAvg = (sum(data["values"][idx-7:idx]))/7
+      # print mvgAvg
+      movingAvg.append(mvgAvg)
+      
+      ## Next day
+      idx += 1
+
+    # print len(dates)
+    # print len(movingAvg)
+
+    # print dates
+    # print movingAvg
+
+    individualAvgData[param] = {
+      "dates": dates,
+      "averages": movingAvg
+    }
+
+  return individualAvgData, processedData
+
+
+#### FUNCTION: takes moving average data and plots it with the form score
+def showMovingAverageAndTotalScore(filecsv, parameter):
+
+  avgData, processedData = dataPointMovingAverage(filecsv)
+
+  ## initialize the plot
+  fig, ax = plt.subplots()
+  graphTitle = "Individual 7 Point Moving Average for "
+
+  if (parameter == 'fatigue'):
+    ## update data so its out of 100
+    values = [((v*100)/5) for v in avgData["fatigue"]["averages"]]
+    dates = avgData["fatigue"]["dates"]
+    ax.plot(dates, values, label='fatigue')
+    graphTitle += 'Fatigue '
+
+  elif (parameter == 'soreness'):
+    dates = individualData["soreness"]["dates"]
+    values = [((v*100)/5) for v in avgData["soreness"]["averages"]]
+    ax.plot(dates, values, label='soreness')
+    graphTitle += 'Soreness '
+
+  elif (parameter == 'stress'):
+    dates = individualData["stress"]["dates"]
+    values = [((v*100)/5) for v in avgData["stress"]["averages"]]
+    ax.plot(dates, values, label='stress')
+    graphTitle += 'Stress '
+
+  elif (parameter == 'sleep'):
+    dates = individualData["sleep"]["dates"]
+    values = [((v*100)/5) for v in avgData["sleep"]["averages"]]
+    ax.plot(dates, values, label='sleep')
+    graphTitle += 'Sleep '
+
+  elif (parameter == 'hydration'):
+    dates = individualData["hydration"]["dates"]
+    values = [((v*100)/5) for v in avgData["hydration"]["averages"]]
+    ax.plot(dates, values, label='hydration')
+    graphTitle += 'Hydration '
+
+  elif (parameter == 'nutrition'):
+    dates = individualData["nutrition"]["dates"]
+    values = [((v*100)/5) for v in avgData["nutrition"]["averages"]]
+    ax.plot(dates, values, label='nutrition')
+    graphTitle += 'Nutrition '
+
+  elif (parameter == 'overall'):
+    dates = individualData["overall"]["dates"]
+    values = [((v*100)/5) for v in avgData["overall"]["averages"]]
+    ax.plot(dates, values, label='overall')
+    graphTitle += 'Overall '
+
+  ## Add the total form score 
+  totalDates = processedData["total"]["dates"]
+  totalValues = processedData["total"]["values"]
+  ax.plot(totalDates, totalValues, label='Total Score')
+  graphTitle += 'with Total Score '
+
+  ax.grid(True)
+  ax.set_ylim(0, 105)
+  ax.format_xdata = mdates.DateFormatter('%Y-%m-%d')
+  fig.autofmt_xdate()
+  ax.legend(loc=3)
+
+  ## set axes and title
+  ax.set_xlabel('Dates')
+  ax.set_ylabel('Values')
+  ax.set_title(graphTitle)
+  
+  plt.show()
+
+
+#### FUNCTION: plot raw data with mean / max data to understand different 
+def showRawMeanMax(filecsv):
+  #### Load data from csv file 
+  dataRaw = loadData_oneUser(filecsv)
+
+  parameterName = 'overall'
+
+  datesRaw = dataRaw[parameterName]['dates']
+  valuesRaw = dataRaw[parameterName]['values']
+  datesUniqueSet = sorted(list(set(datesRaw)))
+
+  # Initializing lists to store unique dates and the corresponding values, using max or min filetering.
+  datesUnique = []
+  valuesUniqueMax = []
+  valuesUniqueMean = []
+
+  for i, date in enumerate(datesUniqueSet):
+
+    # Initialize tempValues
+    tempValues = []
+    # Find all values corresponding to the date
+    tempValues = [valuesRaw[j] for j, x in enumerate(datesRaw) if x == date]
+
+    # print tempValues
+    # If data exists (which it)
+    if(len(tempValues)>0):
+
+      # Store unique date
+      datesUnique.append(date)
+      # Store mean of values
+      valuesUniqueMean.append(sum(tempValues)/float(len(tempValues)))
+      valuesUniqueMax.append(max(tempValues))
+
+
+  #### Plotting data
+  fig, ax = plt.subplots()
+  ax.plot(datesUnique, valuesUniqueMean, label='Unique Mean')
+  ax.plot(datesUnique, valuesUniqueMax, label='Unique Max')
+  ax.plot(datesRaw, valuesRaw, label='Raw Data')
+  ax.grid(True)
+  ax.format_xdata = mdates.DateFormatter('%Y-%m-%d')
+  fig.autofmt_xdate()
+  ax.legend(loc=4)
+  ## set axes and title
+  ax.set_xlabel('Dates')
+  ax.set_ylabel(parameterName)
+  ax.set_title(parameterName)
+  plt.show()
+
+
+#### FUNCTION: takes params and plots on graph (timeseries)
+def individualParamTrend(filecsv, parameters):
+  individualData = dataPostMeanProcessing_oneUser(filecsv)
 
   #### initialize all to false
-  graphParams = {
+  params = {
     'sleep': 'false',
     'hydration': 'false',
     'nutrition': 'false',
     'stress': 'false',
     'fatigue': 'false',
     'soreness': 'false',
-    'overall': 'false',
-    'formscore': 'false'
+    'overall': 'false'
   }
 
-  paramList = [p.strip() for p in params.split(',')]
+  paramList = [p.strip() for p in parameters.split(',')]
   for param in paramList:
     graphParams[param] = 'true'
-  
-  #### Send params to the function that graphs them in timeseries
-  individualParamTrend(individualData, graphParams)
 
-
-#### FUNCTION: takes params and plots on graph (timeseries)
-def individualParamTrend(individualData, params):
   ## initialize the plot
   fig, ax = plt.subplots()
   graphTitle = "Individual (userId 4349) Trends for "
@@ -218,42 +409,21 @@ def individualParamTrend(individualData, params):
   plt.show()
 
 
-#### FUNCTION: takes in processed data to calculate the form scores (sum of all responses / out of 35)
-def requestIndividualFormScore(processedData):
-  # process data for formscore
-  individualFormScore = {
-    "dates": [],
-    "values": []
-  }
+#### FUNCTION: plots form score data on a graph (timeseries)
+def graphFormScore(filecsv, userId):
 
-  # get all dates for all params
-  for param, data in processedData.items():
-    for date in data["dates"]:
-      if date not in individualFormScore["dates"]:
-        individualFormScore["dates"].append(date)
-  
-  for date in individualFormScore["dates"]:
-    formscore_value = 0
-    for param, data in processedData.items():
-      date_idx = data["dates"].index(date)
-      if date_idx >= 0:
-        formscore_value += data["values"][date_idx]
-    individualFormScore["values"].append(formscore_value)
+  dataWithFormScore = calculateFormScore(filecsv)
+  dates = dataWithFormScore["total"]["dates"]
+  values = dataWithFormScore["total"]["values"]
 
-  #### Send data to function that shows timeseries of athlete's form score
-  athleteFormScore(individualFormScore)
-
-
-#### FUNCTION: takes the form score data and plots it on a graph (timeseries)
-def athleteFormScore(data):
   fig, ax = plt.subplots()
-  graphTitle = "Individual (userId 4349) Form Score"
+  graphTitle = "Individual (userId " + userId +") Form Score"
   dates = data["dates"]
   values = data["values"]
   ax.plot(dates, values, label='Form Score')
 
   ax.grid(True)
-  ax.set_ylim(0, 38)
+  ax.set_ylim(0, 100)
   ax.format_xdata = mdates.DateFormatter('%Y-%m-%d')
   fig.autofmt_xdate()
   ax.legend(loc=3)
@@ -265,6 +435,88 @@ def athleteFormScore(data):
 
   plt.show()
   
+
+#### FUNCTION: plots parameter with formscore 
+def graphParamAndFormScore(filecsv, parameter):
+  individualData = dataWithFormScore(filecsv)
+
+  ## initialize the plot
+  fig, ax = plt.subplots()
+  graphTitle = "Individual Trends for "
+
+  if (parameter == 'fatigue'):
+    ## update data so its out of 100
+    values = [((v*100)/5) for v in individualData["fatigue"]["values"]]
+    dates = individualData["fatigue"]["dates"]
+    ax.plot(dates, values, label='fatigue')
+    graphTitle += 'Fatigue '
+
+  elif (parameter == 'soreness'):
+    dates = individualData["soreness"]["dates"]
+    values = [((v*100)/5) for v in individualData["soreness"]["values"]]
+    ax.plot(dates, values, label='soreness')
+    graphTitle += 'Soreness '
+
+  elif (parameter == 'stress'):
+    dates = individualData["stress"]["dates"]
+    values = [((v*100)/5) for v in individualData["stress"]["values"]]
+    ax.plot(dates, values, label='stress')
+    graphTitle += 'Stress '
+
+  elif (parameter == 'sleep'):
+    dates = individualData["sleep"]["dates"]
+    values = [((v*100)/5) for v in individualData["sleep"]["values"]]
+    ax.plot(dates, values, label='sleep')
+    graphTitle += 'Sleep '
+
+  elif (parameter == 'hydration'):
+    dates = individualData["hydration"]["dates"]
+    values = [((v*100)/5) for v in individualData["hydration"]["values"]]
+    ax.plot(dates, values, label='hydration')
+    graphTitle += 'Hydration '
+
+  elif (parameter == 'nutrition'):
+    dates = individualData["nutrition"]["dates"]
+    values = [((v*100)/5) for v in individualData["nutrition"]["values"]]
+    ax.plot(dates, values, label='nutrition')
+    graphTitle += 'Nutrition '
+
+  elif (parameter == 'overall'):
+    dates = individualData["overall"]["dates"]
+    values = [((v*100)/5) for v in individualData["overall"]["values"]]
+    ax.plot(dates, values, label='overall')
+    graphTitle += 'Overall '
+
+  ## Add the total form score 
+  totalDates = individualData["total"]["dates"]
+  totalValues = individualData["total"]["values"]
+  ax.plot(totalDates, totalValues, label='Total Score')
+  graphTitle += 'with Total Score '
+
+  ax.grid(True)
+  ax.set_ylim(0, 105)
+  ax.format_xdata = mdates.DateFormatter('%Y-%m-%d')
+  fig.autofmt_xdate()
+  ax.legend(loc=3)
+
+  ## set axes and title
+  ax.set_xlabel('Dates')
+  ax.set_ylabel('Values')
+  ax.set_title(graphTitle)
+  
+  plt.show()
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

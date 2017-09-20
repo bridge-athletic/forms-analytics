@@ -15,68 +15,29 @@ filecsv = 'Individual_performance_log_data.csv'
 # userId = 4349
 
 
-#### Load data from csv file 
-dataRaw = plog.loadData_oneUser(filecsv)
-
-parameterName = 'overall'
-
-datesRaw = dataRaw[parameterName]['dates']
-valuesRaw = dataRaw[parameterName]['values']
-
-
-datesUniqueSet = sorted(list(set(datesRaw)))
-
-# Initializing lists to store unique dates and the corresponding values, using max or min filetering.
-datesUnique = []
-valuesUniqueMax = []
-valuesUniqueMean = []
-
-for i, date in enumerate(datesUniqueSet):
-
-	# Initialize tempValues
-	tempValues = []
-	# Find all values corresponding to the date
-	tempValues = [valuesRaw[j] for j, x in enumerate(datesRaw) if x == date]
-
-	# print tempValues
-	# If data exists (which it)
-	if(len(tempValues)>0):
-
-		# Store unique date
-		datesUnique.append(date)
-		# Store mean of values
-		valuesUniqueMean.append(sum(tempValues)/float(len(tempValues)))
-		valuesUniqueMax.append(max(tempValues))
-
-# print datesUnique
-# print valuesUniqueMean
-
-#### Plotting data
-fig, ax = plt.subplots()
-ax.plot(datesUnique, valuesUniqueMean, label='Unique Mean')
-ax.plot(datesUnique, valuesUniqueMax, label='Unique Max')
-ax.plot(datesRaw, valuesRaw, label='Raw Data')
-ax.grid(True)
-# ax.set_ylim(0, 38)
-ax.format_xdata = mdates.DateFormatter('%Y-%m-%d')
-fig.autofmt_xdate()
-ax.legend(loc=4)
-## set axes and title
-ax.set_xlabel('Dates')
-ax.set_ylabel(parameterName)
-ax.set_title(parameterName)
-plt.show()
-
 
 #### Print data
 # print "Processed Performance Log Data for " + userId
 # print individual_data
 
 #### Show trends of specified params
-# plog.requestIndividunalParamTrend(individual_data, params)
+# plog.individualParamTrend(filecsv, params)
 
 #### Show trend of form score // requires in processed data
 # plog.requestIndividualFormScore(individual_data)
+
+#### Show raw data vs mean / max data before processed
+# plog.showRawMeanMax(filecsv)
+
+#### Show parameter on scale of 100 with form score
+# param = "fatigue"
+# plog.graphParamAndFormScore(filecsv, param)
+
+
+#### Calculate moving averages for each parameter
+param = "fatigue"
+plog.showMovingAverageAndTotalScore(filecsv, param)
+
 
 
 # TODOs
