@@ -73,7 +73,7 @@ plt.show()
 # print individual_data
 
 #### Show trends of specified params
-# plog.requestIndividualParamTrend(individual_data, params)
+# plog.requestIndividunalParamTrend(individual_data, params)
 
 #### Show trend of form score // requires in processed data
 # plog.requestIndividualFormScore(individual_data)

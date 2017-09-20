@@ -12,7 +12,7 @@ import matplotlib.dates as mdates
 
 
 #### FUNCTION: takes a csv file with performance log data for one user 
-def loadData_oneUser(filename):
+def loadData_oneUser(filecsv):
 
   ## empty dictionary to be filled with performance log data
   individualPerformanceLogData = {
@@ -46,7 +46,7 @@ def loadData_oneUser(filename):
     }
   }
 
-  with open(filename) as performanceLogData:
+  with open(filecsv) as performanceLogData:
     csvReader = csv.reader(performanceLogData)
 
     for row in csvReader:
@@ -89,6 +89,46 @@ def loadData_oneUser(filename):
         individualPerformanceLogData["overall"]["values"].append(int(row[3]))
 
   return individualPerformanceLogData
+
+#### FUNCTION: takes the csv, calls function to organize it then creates same object after mean processing
+def dataPostMeanProcessing_oneUser(filecsv):
+  rawData = loadData_oneUser(filecsv)
+  dataPostProcessing = {}
+
+  for param, data in rawData:
+    datesRaw = dataRaw[param]['dates']
+    valuesRaw = dataRaw[param]['values']
+
+    datesUniqueSet = sorted(list(set(datesRaw)))
+
+    # Initializing lists to store unique dates and the corresponding values, using max or min filetering.
+    datesUnique = []
+    # valuesUniqueMax = []
+    valuesUniqueMean = []
+
+    for i, date in enumerate(datesUniqueSet):
+      # Initialize tempValues
+      tempValues = []
+      # Find all values corresponding to the date
+      tempValues = [valuesRaw[j] for j, x in enumerate(datesRaw) if x == date]
+
+      # If data exists (which it)
+      if(len(tempValues)>0):
+
+        # Store unique date
+        datesUnique.append(date)
+        # Store mean of values
+        valuesUniqueMean.append(sum(tempValues)/float(len(tempValues)))
+
+    # Add the unique lists to the main data structure
+    dataPostProcessing[param] = {
+      "dates": [],
+      "values": []
+    }
+    dataPostProcessing[param]["dates"] = datesUnique
+    dataPostProcessing[param]["values"] = valuesUniqueMean
+
+  return dataPostProcessing
 
 
 #### FUNCTION: takes list of params to be graphed
@@ -202,6 +242,7 @@ def requestIndividualFormScore(processedData):
 
   #### Send data to function that shows timeseries of athlete's form score
   athleteFormScore(individualFormScore)
+
 
 #### FUNCTION: takes the form score data and plots it on a graph (timeseries)
 def athleteFormScore(data):
