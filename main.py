@@ -16,12 +16,12 @@ filecsv = 'Individual_performance_log_data.csv'
 
 
 #### Load data from csv file 
-data = plog.loadData_oneUser(filecsv)
+dataRaw = plog.loadData_oneUser(filecsv)
 
 parameterName = 'overall'
 
-datesRaw = data[parameterName]['dates']
-valuesRaw = data[parameterName]['values']
+datesRaw = dataRaw[parameterName]['dates']
+valuesRaw = dataRaw[parameterName]['values']
 
 
 datesUniqueSet = sorted(list(set(datesRaw)))
@@ -79,4 +79,12 @@ plt.show()
 # plog.requestIndividualFormScore(individual_data)
 
 
+# TODOs
+
+# 0) Generate data (follows the same structure as dataRaw but post-mean processing)
+# 1) Add to data['total']['values'] and data['total']['dates']
+# ---  sorted(list(set(data['nutrition']['dates']+data['sleep']['dates'])))
+# 2) Nice plot of each category vs. time, with total overlayed (8 figures)
+# 3) Nice plot of 7pt-Moving-average of each category vs. time, with total overlayed (8 figures)
+# 4) Nice plot of 7Day-Moving-average of each category vs. time, with total overlayed (8 figures)
 
