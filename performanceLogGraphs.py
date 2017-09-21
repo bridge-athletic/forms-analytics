@@ -4,6 +4,18 @@
 # AND formquestionid in (103, 104, 105, 106, 107, 108, 109) 
 # LIMIT 100000;
 
+
+### Fatigue | 492 | 1 = Good, 5 = Bad
+### Soreness | 493 | 1 = Good, 5 = Bad
+### Stress | 494 | 1 = Good, 5 = Bad
+### Sleep | 495 | 1 = Bad, 5 = Good
+### Nutrition | 496 | 1 = Bad, 5 = Good
+### Hydration | 497 | 1 = Bad, 5 = Good
+### Overall | 498 | 1 = Bad, 5 = Good
+
+### Total Score | 1 = Bad, 100 = Good
+
+
 import csv
 import datetime
 import numpy as np
@@ -12,7 +24,8 @@ import matplotlib.dates as mdates
 # from datetime import date, datetime, timedelta
 
 
-#### FUNCTION: takes a csv file with performance log data for one user 
+#### FUNCTION: takes a csv file with performance log data for one user
+#### NOTE: this function organizes raw data 
 def loadData_oneUser(filecsv):
 
   ## empty dictionary to be filled with performance log data
@@ -92,9 +105,97 @@ def loadData_oneUser(filecsv):
   return individualPerformanceLogData
 
 
+#### FUNCTION: takes a csv file with performance log data for one user 
+#### NOTE: this function organizes question scores
+def loadScores_oneUser(filecsv):
+
+  ## empty dictionary to be filled with performance log data
+  individualPerformanceLogScores = {
+    "fatigue": {
+      "dates": [],
+      "values": []
+    },
+    "soreness": {
+      "dates": [],
+      "values": []
+    },
+    "stress": {
+      "dates": [],
+      "values": []
+    },
+    "sleep": {
+      "dates": [],
+      "values": []
+    },
+    "nutrition": {
+      "dates": [],
+      "values": []
+    },
+    "hydration": {
+      "dates": [],
+      "values": []
+    },
+    "overall": {
+      "dates": [],
+      "values": []
+    }
+  }
+
+  with open(filecsv) as performanceLogData:
+    csvReader = csv.reader(performanceLogData)
+
+    for row in csvReader:
+      ## convert date to YYYY-MM-DD
+      date = datetime.date.fromtimestamp(int(row[2]))
+      
+      ## fatigue data; parameterId 492
+      if (int(row[1]) == 492):
+        individualPerformanceLogData["fatigue"]["dates"].append(date)
+        ## calculate score for fatigue
+        score = ((5 - int(row[3])) + 1)
+        individualPerformanceLogData["fatigue"]["values"].append(score)
+      
+      ## soreness data; parameterId 493
+      if (int(row[1]) == 493):
+        individualPerformanceLogData["soreness"]["dates"].append(date)
+        ## calculate score for soreness
+        score = ((5 - int(row[3])) + 1)
+        individualPerformanceLogData["soreness"]["values"].append(score)
+      
+      ## stress data; parameterId 494
+      if (int(row[1]) == 494):
+        individualPerformanceLogData["stress"]["dates"].append(date)
+        ## calculate score for sleep
+        score = ((5 - int(row[3])) + 1)
+        individualPerformanceLogData["stress"]["values"].append(int(row[3]))
+      
+      ## sleep data; parameterId 495
+      if (int(row[1]) == 495):
+        individualPerformanceLogData["sleep"]["dates"].append(date)
+        individualPerformanceLogData["sleep"]["values"].append(int(row[3]))
+      
+      ## nutrition data; parameterId 496
+      if (int(row[1]) == 496):
+        individualPerformanceLogData["nutrition"]["dates"].append(date)
+        individualPerformanceLogData["nutrition"]["values"].append(int(row[3]))
+      
+      ## hydration data; parameterId 497
+      if (int(row[1]) == 497):
+        individualPerformanceLogData["hydration"]["dates"].append(date)
+        individualPerformanceLogData["hydration"]["values"].append(int(row[3]))
+      
+      ## overall data; parameterId 498
+      if (int(row[1]) == 498):
+        individualPerformanceLogData["overall"]["dates"].append(date)
+        individualPerformanceLogData["overall"]["values"].append(int(row[3]))
+
+  return individualPerformanceLogData
+
+
 #### FUNCTION: processes data with means, uses the loadData function
 def dataPostMeanProcessing_oneUser(filecsv):
-  rawData = loadData_oneUser(filecsv)
+  # rawData = loadData_oneUser(filecsv)
+  rawData= loadScores_oneUser(filecsv)
   dataPostProcessing = {}
 
   for param, data in rawData.items():
@@ -467,9 +568,9 @@ def individualParamTrend(filecsv, parameters):
 #### FUNCTION: plots form score data on a graph (timeseries)
 def graphFormScore(filecsv, userId):
 
-  dataWithFormScore = calculateFormScore(filecsv)
-  dates = dataWithFormScore["total"]["dates"]
-  values = dataWithFormScore["total"]["values"]
+  dataFormScore = dataWithFormScore(filecsv)
+  dates = dataFormScore["total"]["dates"]
+  values = dataFormScore["total"]["values"]
 
   fig, ax = plt.subplots()
   graphTitle = "Individual (userId " + userId +") Form Score"
