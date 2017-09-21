@@ -34,7 +34,7 @@ filecsv = 'Individual_performance_log_data.csv'
 
 
 #### Show parameter on scale of 100 with form score
-# param = "fatigue"
+# param = "overall"
 # plog.graphParamAndFormScore(filecsv, param)
 
 
@@ -44,7 +44,7 @@ filecsv = 'Individual_performance_log_data.csv'
 
 
 #### Show moving averages (7 point or 7 day) for one parameter with total score
-# param = "fatigue"
+# param = "overall"
 # plog.showMovingAverageAndTotalScore(filecsv, param)
 
 #### Shows number of questions answered per submission
