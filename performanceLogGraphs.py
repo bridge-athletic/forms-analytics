@@ -9,6 +9,7 @@ import datetime
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
+# from datetime import date, datetime, timedelta
 
 
 #### FUNCTION: takes a csv file with performance log data for one user 
@@ -204,6 +205,60 @@ def dataPointMovingAverage(filecsv):
     }
 
   return individualAvgData, processedData
+
+
+#### FUNCTION: calculates 7 day moving average
+def dataDayMovingAverage(filecsv):
+  processedData = dataWithFormScore(filecsv)
+
+  ## list is already sorted, so take the first and last date of ["total"]["dates"]
+  startDate = processedData["total"]["dates"][0]
+  endDate = processedData["total"]["dates"][-1]
+  # print startDate
+  # print endDate
+
+  ## Get every date between start and end date
+  allDates = [startDate + datetime.timedelta(days = x) for x in range((endDate - startDate).days + 1)]
+
+  
+  ## Go through each param 
+  for param, data in processedData.items():
+    ## Start at 7th spot for 7 day moving average
+    idx = 7
+
+    ## Initialize temp list to hold data as we calculate it
+    movingAvg = []
+
+    ## Go though all dates between the first and last
+    for date in allDates:      
+      mygAvg = 0
+      ## Check if date in date list, if yes: use data, if no: use value from day before
+      if date in data["dates"]:
+        ## Average past 7 days and store in temp list
+        mvgAvg = (sum(data["values"][idx-7:idx]))/7
+      else:
+        ## Take the last value from the list (previous day's average)
+        mvgAvg = movingAvg[-1]
+
+      ## Store latest moving average in list
+      movingAvg.append(mvgAvg)
+
+      ## Go to next date in the allDates list
+      idx += 1
+
+
+    individualAvgData[param] = {
+      "dates": dates,
+      "averages": movingAvg
+    }
+
+
+
+
+  # need to get first and last date in combined list
+  # make new list of ALL dates between first and last 
+  # go through each date in list, if data, add it, if not, take the one before 
+  # go until the end
 
 
 #### FUNCTION: takes moving average data and plots it with the form score

@@ -20,24 +20,42 @@ filecsv = 'Individual_performance_log_data.csv'
 # print "Processed Performance Log Data for " + userId
 # print individual_data
 
+
 #### Show trends of specified params
 # plog.individualParamTrend(filecsv, params)
+
 
 #### Show trend of form score // requires in processed data
 # plog.requestIndividualFormScore(individual_data)
 
+
 #### Show raw data vs mean / max data before processed
 # plog.showRawMeanMax(filecsv)
+
 
 #### Show parameter on scale of 100 with form score
 # param = "fatigue"
 # plog.graphParamAndFormScore(filecsv, param)
 
 
-#### Calculate moving averages for each parameter
-param = "fatigue"
-plog.showMovingAverageAndTotalScore(filecsv, param)
+#### Calculate 7 point moving averages for every parameter
+# param = "fatigue"
+# plog.dataPointMovingAverage(filecsv)
 
+
+#### Show moving averages for one parameter with total score
+# param = "fatigue"
+# plog.showMovingAverageAndTotalScore(filecsv, param)
+
+
+#### Calculate 7 day moving averages for every parameter
+param = "fatigue"
+plog.dataDayMovingAverage(filecsv)
+
+
+
+
+#### Calgu
 
 
 # TODOs
