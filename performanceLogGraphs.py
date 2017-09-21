@@ -268,6 +268,43 @@ def dataWithFormScore(filecsv):
   return processedData
 
 
+#### FUNCTION: calculates and shows number of questions answered for each form submission
+def questionsAnsweredPerSubmission(filecsv):
+  # go through all dates from total score
+  # add one if the date exists in each parameter
+
+  processedData = dataWithFormScore(filecsv)
+
+  ## Already went through and got all dates that have one or more response recorded
+  dates = processedData["total"]["dates"]
+  numResponses = []
+
+  for date in dates:
+    answers = 0
+    for param, data in processedData.items(): 
+      if param != "total":
+        if date in data["dates"]:
+          answers += 1
+
+    numResponses.append(answers)
+
+  fig, ax = plt.subplots()
+  graphTitle = "Number of Questions Answered per Form Submission (max. 7)"
+  ax.plot(dates, numResponses, label='Num. Questions Answered')
+
+  ax.grid(True)
+  ax.set_ylim(0, 7.5)
+  ax.format_xdata = mdates.DateFormatter('%Y-%m-%d')
+  fig.autofmt_xdate()
+  ax.legend(loc=3)
+
+  ## set axes and title
+  ax.set_xlabel('Dates')
+  ax.set_ylabel('Num. Questions Answered')
+  ax.set_title(graphTitle)
+
+  plt.show()
+
 #### FUNCTION: calculates 7 pt moving average
 def dataPointMovingAverage(filecsv):
   processedData = dataWithFormScore(filecsv)
