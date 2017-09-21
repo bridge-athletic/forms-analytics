@@ -44,13 +44,13 @@ filecsv = 'Individual_performance_log_data.csv'
 
 
 #### Show moving averages for one parameter with total score
-# param = "fatigue"
-# plog.showMovingAverageAndTotalScore(filecsv, param)
+param = "fatigue"
+plog.showMovingAverageAndTotalScore(filecsv, param)
 
 
 #### Calculate 7 day moving averages for every parameter
-param = "fatigue"
-plog.dataDayMovingAverage(filecsv)
+# param = "fatigue"
+# plog.dataDayMovingAverage(filecsv)
 
 
 

@@ -150,49 +150,50 @@ def loadScores_oneUser(filecsv):
       
       ## fatigue data; parameterId 492
       if (int(row[1]) == 492):
-        individualPerformanceLogData["fatigue"]["dates"].append(date)
+        individualPerformanceLogScores["fatigue"]["dates"].append(date)
         ## calculate score for fatigue
         score = ((5 - int(row[3])) + 1)
-        individualPerformanceLogData["fatigue"]["values"].append(score)
+        individualPerformanceLogScores["fatigue"]["values"].append(score)
       
       ## soreness data; parameterId 493
       if (int(row[1]) == 493):
-        individualPerformanceLogData["soreness"]["dates"].append(date)
+        individualPerformanceLogScores["soreness"]["dates"].append(date)
         ## calculate score for soreness
         score = ((5 - int(row[3])) + 1)
-        individualPerformanceLogData["soreness"]["values"].append(score)
+        individualPerformanceLogScores["soreness"]["values"].append(score)
       
       ## stress data; parameterId 494
       if (int(row[1]) == 494):
-        individualPerformanceLogData["stress"]["dates"].append(date)
+        individualPerformanceLogScores["stress"]["dates"].append(date)
         ## calculate score for sleep
         score = ((5 - int(row[3])) + 1)
-        individualPerformanceLogData["stress"]["values"].append(int(row[3]))
+        individualPerformanceLogScores["stress"]["values"].append(int(row[3]))
       
       ## sleep data; parameterId 495
       if (int(row[1]) == 495):
-        individualPerformanceLogData["sleep"]["dates"].append(date)
-        individualPerformanceLogData["sleep"]["values"].append(int(row[3]))
+        individualPerformanceLogScores["sleep"]["dates"].append(date)
+        individualPerformanceLogScores["sleep"]["values"].append(int(row[3]))
       
       ## nutrition data; parameterId 496
       if (int(row[1]) == 496):
-        individualPerformanceLogData["nutrition"]["dates"].append(date)
-        individualPerformanceLogData["nutrition"]["values"].append(int(row[3]))
+        individualPerformanceLogScores["nutrition"]["dates"].append(date)
+        individualPerformanceLogScores["nutrition"]["values"].append(int(row[3]))
       
       ## hydration data; parameterId 497
       if (int(row[1]) == 497):
-        individualPerformanceLogData["hydration"]["dates"].append(date)
-        individualPerformanceLogData["hydration"]["values"].append(int(row[3]))
+        individualPerformanceLogScores["hydration"]["dates"].append(date)
+        individualPerformanceLogScores["hydration"]["values"].append(int(row[3]))
       
       ## overall data; parameterId 498
       if (int(row[1]) == 498):
-        individualPerformanceLogData["overall"]["dates"].append(date)
-        individualPerformanceLogData["overall"]["values"].append(int(row[3]))
+        individualPerformanceLogScores["overall"]["dates"].append(date)
+        individualPerformanceLogScores["overall"]["values"].append(int(row[3]))
 
-  return individualPerformanceLogData
+  return individualPerformanceLogScores
 
 
 #### FUNCTION: processes data with means, uses the loadData function
+#### CURRENTLY: using form score data object
 def dataPostMeanProcessing_oneUser(filecsv):
   # rawData = loadData_oneUser(filecsv)
   rawData= loadScores_oneUser(filecsv)
@@ -270,39 +271,27 @@ def dataWithFormScore(filecsv):
 #### FUNCTION: calculates 7 pt moving average
 def dataPointMovingAverage(filecsv):
   processedData = dataWithFormScore(filecsv)
-
+  
   individualAvgData = {}
 
   for param, data in processedData.items():
-    ## Start at 7th spot since creating a 7 point moving average
-    idx = 7
 
-    ## Initialize temp lists to hold data as we calculate it
-    dates = []
-    movingAvg = []
-    
-    ## Get averages for each day until reach the last date in list
-    while idx < len(data["dates"]):
-      ## Store date of moving average below
-      dates.append(data["dates"][idx])
-      
-      ## Average past 7 days and store in temp list
-      mvgAvg = (sum(data["values"][idx-7:idx]))/7
-      # print mvgAvg
-      movingAvg.append(mvgAvg)
-      
-      ## Next day
-      idx += 1
+    ## Initializing list to convolve with question scores
+    n = [1,1,1,1,1,1,1]
 
-    # print len(dates)
-    # print len(movingAvg)
+    ## Get moving sum
+    preAverages = np.convolve(data["values"], n, mode='valid')
 
-    # print dates
-    # print movingAvg
+    ## Divide all items by 7 to get moving average
+    averages = [x/7 for x in preAverages]
+
+    ## Additional calculations needed if switch convolve mode to full
+    # averages = [x/(n+1) if n+1 < 7 else x/7 for n, x in enumerate(preAverages)]
 
     individualAvgData[param] = {
-      "dates": dates,
-      "averages": movingAvg
+      ## Remove the first 6 dates since we are using convolve mode = valid
+      "dates": data["dates"][6:],
+      "averages": averages
     }
 
   return individualAvgData, processedData
@@ -311,6 +300,8 @@ def dataPointMovingAverage(filecsv):
 #### FUNCTION: calculates 7 day moving average
 def dataDayMovingAverage(filecsv):
   processedData = dataWithFormScore(filecsv)
+
+  individualAvgData = {}
 
   ## list is already sorted, so take the first and last date of ["total"]["dates"]
   startDate = processedData["total"]["dates"][0]
@@ -321,51 +312,52 @@ def dataDayMovingAverage(filecsv):
   ## Get every date between start and end date
   allDates = [startDate + datetime.timedelta(days = x) for x in range((endDate - startDate).days + 1)]
 
-  
-  ## Go through each param 
   for param, data in processedData.items():
-    ## Start at 7th spot for 7 day moving average
-    idx = 7
+    allData = []
 
-    ## Initialize temp list to hold data as we calculate it
-    movingAvg = []
-
-    ## Go though all dates between the first and last
-    for date in allDates:      
-      mygAvg = 0
-      ## Check if date in date list, if yes: use data, if no: use value from day before
-      if date in data["dates"]:
-        ## Average past 7 days and store in temp list
-        mvgAvg = (sum(data["values"][idx-7:idx]))/7
+    ## Get a list of data with -1 for any value missing user data
+    for date in allDates:
+      if (date in data["dates"]):
+        ## If date exists in the list, use the recorded data
+        idx = data["dates"].index(date)
+        allData.append(data["values"][idx])
       else:
-        ## Take the last value from the list (previous day's average)
-        mvgAvg = movingAvg[-1]
+        ## Put -1 as filler to filter out later
+        allData.append(-1)
 
-      ## Store latest moving average in list
-      movingAvg.append(mvgAvg)
+    n = [1,1,1,1,1,1,1]
+    preAverages = np.convolve(allData, n, mode='valid')
 
-      ## Go to next date in the allDates list
-      idx += 1
+    movingAverage = []
+    ## Go through and find out what the denominator should be
+    for i, x in enumerate(preAverages):
 
+      ## Get the seven values that contributed to this data point
+      tempValues = allData[i:(i+7)]
+
+      ## Find out how many should be filtered out
+      dataPoints = (7 - (tempValues.count(-1)))
+
+      if dataPoints == 0:
+        ## If there were no data points in the seven days, take the average from the previous day
+        movingAverage.append(movingAverage[-1])
+      else:
+        ## Add sum / actual number of data points that contributed
+        movingAverage.append(abs(x)/dataPoints)
 
     individualAvgData[param] = {
-      "dates": dates,
-      "averages": movingAvg
+      "dates": allDates[6:],
+      "averages": movingAverage
     }
 
-
-
-
-  # need to get first and last date in combined list
-  # make new list of ALL dates between first and last 
-  # go through each date in list, if data, add it, if not, take the one before 
-  # go until the end
+  return individualAvgData, processedData
 
 
 #### FUNCTION: takes moving average data and plots it with the form score
 def showMovingAverageAndTotalScore(filecsv, parameter):
 
-  avgData, processedData = dataPointMovingAverage(filecsv)
+  # avgData, processedData = dataPointMovingAverage(filecsv)
+  avgData, processedData = dataDayMovingAverage(filecsv)
 
   ## initialize the plot
   fig, ax = plt.subplots()
