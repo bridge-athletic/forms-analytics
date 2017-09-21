@@ -44,20 +44,13 @@ filecsv = 'Individual_performance_log_data.csv'
 
 
 #### Show moving averages (7 point or 7 day) for one parameter with total score
-# param = "overall"
-# plog.showMovingAverageAndTotalScore(filecsv, param)
+param = "nutrition"
+plog.showMovingAverageAndTotalScore(filecsv, param)
 
 #### Shows number of questions answered per submission
-plog.questionsAnsweredPerSubmission(filecsv)
+# plog.questionsAnsweredPerSubmission(filecsv)
 
 
 
 # TODOs
-
-# 0) Generate data (follows the same structure as dataRaw but post-mean processing)
-# 1) Add to data['total']['values'] and data['total']['dates']
-# ---  sorted(list(set(data['nutrition']['dates']+data['sleep']['dates'])))
-# 2) Nice plot of each category vs. time, with total overlayed (8 figures)
-# 3) Nice plot of 7pt-Moving-average of each category vs. time, with total overlayed (8 figures)
-# 4) Nice plot of 7Day-Moving-average of each category vs. time, with total overlayed (8 figures)
-
+## update moving averages for points and days for the total score to be moving average as well

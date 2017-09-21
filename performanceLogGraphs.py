@@ -345,8 +345,6 @@ def dataDayMovingAverage(filecsv):
   ## list is already sorted, so take the first and last date of ["total"]["dates"]
   startDate = processedData["total"]["dates"][0]
   endDate = processedData["total"]["dates"][-1]
-  # print startDate
-  # print endDate
 
   ## Get every date between start and end date
   allDates = [startDate + datetime.timedelta(days = x) for x in range((endDate - startDate).days + 1)]
@@ -375,14 +373,16 @@ def dataDayMovingAverage(filecsv):
       tempValues = allData[i:(i+7)]
 
       ## Find out how many should be filtered out
-      dataPoints = (7 - (tempValues.count(-1)))
+      filtered = tempValues.count(-1)
+      dataPoints = (7 - filtered)
 
       if dataPoints == 0:
         ## If there were no data points in the seven days, take the average from the previous day
         movingAverage.append(movingAverage[-1])
       else:
+        
         ## Add sum / actual number of data points that contributed
-        movingAverage.append(abs(x)/dataPoints)
+        movingAverage.append((x+filtered)/dataPoints)
 
     individualAvgData[param] = {
       "dates": allDates[6:],
@@ -447,8 +447,8 @@ def showMovingAverageAndTotalScore(filecsv, parameter):
     graphTitle += 'Overall '
 
   ## Add the total form score 
-  totalDates = processedData["total"]["dates"]
-  totalValues = processedData["total"]["values"]
+  totalDates = avgData["total"]["dates"]
+  totalValues = avgData["total"]["averages"]
   ax.plot(totalDates, totalValues, label='Total Score')
   graphTitle += 'with Total Score '
 
@@ -464,7 +464,7 @@ def showMovingAverageAndTotalScore(filecsv, parameter):
   ax.set_title(graphTitle)
   
   # plt.savefig(parameter + "_7Point_moving_average_with_form_score.png")  
-  plt.savefig(parameter + "_7D_moving_average_with_form_score.png")
+  # plt.savefig(parameter + "_7D_moving_average_with_form_score.png")
   plt.show()
 
 
@@ -491,7 +491,6 @@ def showRawMeanMax(filecsv):
     # Find all values corresponding to the date
     tempValues = [valuesRaw[j] for j, x in enumerate(datesRaw) if x == date]
 
-    # print tempValues
     # If data exists (which it)
     if(len(tempValues)>0):
 
