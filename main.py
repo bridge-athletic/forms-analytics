@@ -33,6 +33,10 @@ filecsv = 'Individual_performance_log_data.csv'
 # plog.showRawMeanMax(filecsv)
 
 
+#### Shows number of questions answered per submission
+# plog.questionsAnsweredPerSubmission(filecsv)
+
+
 #### Show parameter on scale of 100 with form score
 # param = "overall"
 # plog.graphParamAndFormScore(filecsv, param)
@@ -47,8 +51,8 @@ filecsv = 'Individual_performance_log_data.csv'
 param = "nutrition"
 plog.showMovingAverageAndTotalScore(filecsv, param)
 
-#### Shows number of questions answered per submission
-# plog.questionsAnsweredPerSubmission(filecsv)
+
+
 
 
 

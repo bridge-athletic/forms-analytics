@@ -308,7 +308,7 @@ def questionsAnsweredPerSubmission(filecsv):
 
 
 #### FUNCTION: calculates 7 pt moving average
-def dataPointMovingAverage(filecsv):
+def sevenPointMovingAverage(filecsv):
   processedData = dataWithFormScore(filecsv)
   
   individualAvgData = {}
@@ -336,8 +336,35 @@ def dataPointMovingAverage(filecsv):
   return individualAvgData, processedData
 
 
+#### FUNCTION: calculates 7 pt moving average
+def sevenPointExponentialMovingAverage(filecsv):
+  processedData = dataWithFormScore(filecsv)
+  
+  individualAvgData = {}
+
+  for param, data in processedData.items():
+
+    ## Initializing list to convolve with question scores
+    ## the np.convolve function will invert this list
+    n = [1,0.5,0.25,0.125,0.0625,0.03125,0.015625]
+
+    ## Get moving sum
+    preAverages = np.convolve(data["values"], n, mode='valid')
+
+    ## Divide all items by 7 to get moving average
+    averages = [x/(sum(n)) for x in preAverages]
+
+    individualAvgData[param] = {
+      ## Remove the first 6 dates since we are using convolve mode = valid
+      "dates": data["dates"][6:],
+      "averages": averages
+    }
+
+  return individualAvgData, processedData
+
+
 #### FUNCTION: calculates 7 day moving average
-def dataDayMovingAverage(filecsv):
+def sevenDayMovingAverage(filecsv):
   processedData = dataWithFormScore(filecsv)
 
   individualAvgData = {}
@@ -345,6 +372,8 @@ def dataDayMovingAverage(filecsv):
   ## list is already sorted, so take the first and last date of ["total"]["dates"]
   startDate = processedData["total"]["dates"][0]
   endDate = processedData["total"]["dates"][-1]
+  # print startDate
+  # print endDate
 
   ## Get every date between start and end date
   allDates = [startDate + datetime.timedelta(days = x) for x in range((endDate - startDate).days + 1)]
@@ -395,13 +424,20 @@ def dataDayMovingAverage(filecsv):
 #### FUNCTION: takes moving average data and plots it with the form score
 def showMovingAverageAndTotalScore(filecsv, parameter):
 
-  # avgData, processedData = dataPointMovingAverage(filecsv)
-  avgData, processedData = dataDayMovingAverage(filecsv)
+  #### This is for 7 POINT moving average
+  # avgData, processedData = sevenPointMovingAverage(filecsv)
+  # graphTitle = "Individual 7 Point Moving Average for "
+  
+  #### This is for 7 DAY moving average
+  # avgData, processedData = sevenDayMovingAverage(filecsv)
+  # graphTitle = "Individual 7 Day Moving Average for "
+
+  #### This is for 7 POINT EXPONENTIAL moving average
+  avgData, processedData = sevenPointExponentialMovingAverage(filecsv)
+  graphTitle = "Individual 7 Point Exponential Moving Average for "
 
   ## initialize the plot
   fig, ax = plt.subplots()
-  # graphTitle = "Individual 7 Point Moving Average for "
-  graphTitle = "Individual 7 Day Moving Average for "
 
   if (parameter == 'fatigue'):
     ## update data so its out of 100
