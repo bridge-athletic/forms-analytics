@@ -522,23 +522,29 @@ def showMovingAverageAndTotalScore(filecsv, parameter):
 
   #### This is for 7 POINT moving average
   # avgData, processedData = sevenPointMovingAverage(filecsv)
-  # graphTitle = "Individual 7 Point Moving Average for "
+  # graphTitle = "Individual 7 Point Moving Average"
+  # filename = "_7PT_Moving_Average.png"
   
   #### This is for 7 DAY moving average
   # avgData, processedData = sevenDayMovingAverage(filecsv)
-  # graphTitle = "Individual 7 Day Moving Average for "
+  # graphTitle = "Individual 7 Day Moving Average"
+  # filename = "_7DAY_Moving_Average.png"
 
   #### This is for 7 POINT EXPONENTIAL moving average
   # avgData, processedData = sevenPointExponentialMovingAverage(filecsv)
-  # graphTitle = "Individual 7 Point Exponential Moving Average for "
+  # graphTitle = "Individual 7 Point Exponential Moving Average"
+  # filename = "_7PT_Exponential_Moving_Average.png"
 
   #### This is for 7 POINT EXPONENTIAL moving average - version 2
   # avgData, processedData = sevenPointExponentialMovingAverage2(filecsv)
-  # graphTitle = "Individual 7 Point Exponential Moving Average for "
+  # graphTitle = "Individual 7 Point Exponential Moving Average"
+  # filename = "_7PT_Exponential_Moving_Average_OTHER.png"
+
 
   #### This is for 7 DAY EXPONENTIAL moving average
   avgData, processedData = sevenDayExponentialMovingAverage(filecsv)
-  graphTitle = "Individual 7 Day Exponential Moving Average for "
+  graphTitle = "Individual 7 Day Exponential Moving Average"
+  filename = "_7DAY_Exponential_Moving_Average.png"
 
   ## initialize the plot
   fig, ax = plt.subplots()
@@ -547,50 +553,50 @@ def showMovingAverageAndTotalScore(filecsv, parameter):
     ## update data so its out of 100
     values = [((v*100)/5) for v in avgData["fatigue"]["averages"]]
     dates = avgData["fatigue"]["dates"]
-    ax.plot(dates, values, label='fatigue')
-    graphTitle += 'Fatigue '
+    ax.plot(dates, values, label='Fatigue')
+    # graphTitle += 'Fatigue '
 
   elif (parameter == 'soreness'):
     dates = avgData["soreness"]["dates"]
     values = [((v*100)/5) for v in avgData["soreness"]["averages"]]
-    ax.plot(dates, values, label='soreness')
-    graphTitle += 'Soreness '
+    ax.plot(dates, values, label='Soreness')
+    # graphTitle += 'Soreness '
 
   elif (parameter == 'stress'):
     dates = avgData["stress"]["dates"]
     values = [((v*100)/5) for v in avgData["stress"]["averages"]]
-    ax.plot(dates, values, label='stress')
-    graphTitle += 'Stress '
+    ax.plot(dates, values, label='Stress')
+    # graphTitle += 'Stress '
 
   elif (parameter == 'sleep'):
     dates = avgData["sleep"]["dates"]
     values = [((v*100)/5) for v in avgData["sleep"]["averages"]]
-    ax.plot(dates, values, label='sleep')
-    graphTitle += 'Sleep '
+    ax.plot(dates, values, label='Sleep')
+    # graphTitle += 'Sleep '
 
   elif (parameter == 'hydration'):
     dates = avgData["hydration"]["dates"]
     values = [((v*100)/5) for v in avgData["hydration"]["averages"]]
-    ax.plot(dates, values, label='hydration')
-    graphTitle += 'Hydration '
+    ax.plot(dates, values, label='Hydration')
+    # graphTitle += 'Hydration '
 
   elif (parameter == 'nutrition'):
     dates = avgData["nutrition"]["dates"]
     values = [((v*100)/5) for v in avgData["nutrition"]["averages"]]
-    ax.plot(dates, values, label='nutrition')
-    graphTitle += 'Nutrition '
+    ax.plot(dates, values, label='Nutrition')
+    # graphTitle += 'Nutrition '
 
   elif (parameter == 'overall'):
     dates = avgData["overall"]["dates"]
     values = [((v*100)/5) for v in avgData["overall"]["averages"]]
-    ax.plot(dates, values, label='overall')
-    graphTitle += 'Overall '
+    ax.plot(dates, values, label='Overall')
+    # graphTitle += 'Overall '
 
   ## Add the total form score 
   totalDates = avgData["total"]["dates"]
   totalValues = avgData["total"]["averages"]
   ax.plot(totalDates, totalValues, label='Total Score')
-  graphTitle += 'with Total Score '
+  # graphTitle += 'with Total Score '
 
   ax.grid(True)
   ax.set_ylim(0, 105)
@@ -603,8 +609,7 @@ def showMovingAverageAndTotalScore(filecsv, parameter):
   ax.set_ylabel('Values')
   ax.set_title(graphTitle)
   
-  # plt.savefig(parameter + "_7Point_moving_average_with_form_score.png")  
-  # plt.savefig(parameter + "_7D_moving_average_with_form_score.png")
+  plt.savefig(parameter + filename)
   plt.show()
 
 
