@@ -307,7 +307,7 @@ def questionsAnsweredPerSubmission(filecsv):
   plt.show()
 
 
-#### FUNCTION: calculates 7 pt moving average
+#### FUNCTION: calculates 7 PT moving average
 def sevenPointMovingAverage(filecsv):
   processedData = dataWithFormScore(filecsv)
   
@@ -336,7 +336,7 @@ def sevenPointMovingAverage(filecsv):
   return individualAvgData, processedData
 
 
-#### FUNCTION: calculates 7 pt exponential moving average
+#### FUNCTION: calculates 7 PT EXPONENTIAL moving average
 def sevenPointExponentialMovingAverage(filecsv):
   processedData = dataWithFormScore(filecsv)
   
@@ -363,12 +363,10 @@ def sevenPointExponentialMovingAverage(filecsv):
   return individualAvgData, processedData
 
 
-#### FUNCTION: calculates 7 pt exponential moving average in slightly different way
+#### FUNCTION: calculates 7 PT EXPONENTIAL moving average in slightly different way
 def sevenPointExponentialMovingAverage2(filecsv):
   ## Get the simple 7 point moving average
   avgData, processedData = sevenPointMovingAverage(filecsv)
-
-  # print avgData
 
   individualAvgData = {}
  
@@ -405,7 +403,7 @@ def sevenPointExponentialMovingAverage2(filecsv):
   return individualAvgData, processedData
 
 
-#### FUNCTION: calculates 7 day moving average
+#### FUNCTION: calculates 7 DAY moving average
 def sevenDayMovingAverage(filecsv):
   processedData = dataWithFormScore(filecsv)
 
@@ -414,8 +412,6 @@ def sevenDayMovingAverage(filecsv):
   ## list is already sorted, so take the first and last date of ["total"]["dates"]
   startDate = processedData["total"]["dates"][0]
   endDate = processedData["total"]["dates"][-1]
-  # print startDate
-  # print endDate
 
   ## Get every date between start and end date
   allDates = [startDate + datetime.timedelta(days = x) for x in range((endDate - startDate).days + 1)]
@@ -463,6 +459,64 @@ def sevenDayMovingAverage(filecsv):
   return individualAvgData, processedData
 
 
+#### FUNCTION: calculates 7 DAY EXPONENTIAL moving average
+def sevenDayExponentialMovingAverage(filecsv):
+  processedData = dataWithFormScore(filecsv)
+  individualAvgData = {}
+ 
+  ## list is already sorted, so take the first and last date of ["total"]["dates"]
+  startDate = processedData["total"]["dates"][0]
+  endDate = processedData["total"]["dates"][-1]
+
+  ## Get every date between start and end date
+  allDates = [startDate + datetime.timedelta(days = x) for x in range((endDate - startDate).days + 1)]
+
+  for param, data in processedData.items():
+    allData = []
+    expMA = []
+
+    ## Fill allData -1 for any value missing user data
+    for date in allDates:
+      if (date in data["dates"]):
+        ## If date exists in the list, use the recorded data
+        idx = data["dates"].index(date)
+        allData.append(data["values"][idx])
+      else:
+        ## Put -1 as filler to filter out later
+        allData.append(-1)
+
+    n = [0.015625, 0.03125, 0.0625, 0.125, 0.25, 0.5, 1]
+
+    ## Starting at the 7th number
+    i = 6
+    while i < len(allData):
+      tempValues = allData[i-6:i+1]
+      ema = 0.0
+      dem = 0.0
+      
+      ## Go though list and calculate the EMA for the selected seven days
+      for j, v in enumerate(tempValues):
+        if v != -1:
+          ema += (v * n[j])
+          dem += n[j]
+      
+      if ema == 0:
+        # expMA.append(None)
+        expMA.append(expMA[-1])
+      else:
+        expMA.append(ema/dem)
+      
+      ## Go to next 7 days
+      i += 1
+
+    individualAvgData[param] = {
+      "dates": allDates[6:],
+      "averages": expMA
+    }
+
+  return individualAvgData, processedData
+
+
 #### FUNCTION: takes moving average data and plots it with the form score
 def showMovingAverageAndTotalScore(filecsv, parameter):
 
@@ -479,8 +533,12 @@ def showMovingAverageAndTotalScore(filecsv, parameter):
   # graphTitle = "Individual 7 Point Exponential Moving Average for "
 
   #### This is for 7 POINT EXPONENTIAL moving average - version 2
-  avgData, processedData = sevenPointExponentialMovingAverage2(filecsv)
-  graphTitle = "Individual 7 Point Exponential Moving Average for "
+  # avgData, processedData = sevenPointExponentialMovingAverage2(filecsv)
+  # graphTitle = "Individual 7 Point Exponential Moving Average for "
+
+  #### This is for 7 DAY EXPONENTIAL moving average
+  avgData, processedData = sevenDayExponentialMovingAverage(filecsv)
+  graphTitle = "Individual 7 Day Exponential Moving Average for "
 
   ## initialize the plot
   fig, ax = plt.subplots()
