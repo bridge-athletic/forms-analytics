@@ -336,7 +336,7 @@ def sevenPointMovingAverage(filecsv):
   return individualAvgData, processedData
 
 
-#### FUNCTION: calculates 7 pt moving average
+#### FUNCTION: calculates 7 pt exponential moving average
 def sevenPointExponentialMovingAverage(filecsv):
   processedData = dataWithFormScore(filecsv)
   
@@ -358,6 +358,48 @@ def sevenPointExponentialMovingAverage(filecsv):
       ## Remove the first 6 dates since we are using convolve mode = valid
       "dates": data["dates"][6:],
       "averages": averages
+    }
+
+  return individualAvgData, processedData
+
+
+#### FUNCTION: calculates 7 pt exponential moving average in slightly different way
+def sevenPointExponentialMovingAverage2(filecsv):
+  ## Get the simple 7 point moving average
+  avgData, processedData = sevenPointMovingAverage(filecsv)
+
+  # print avgData
+
+  individualAvgData = {}
+ 
+  ## Want a 7 point moving average
+  n = 7
+  
+  ## Get multiplier, force the float
+  k = 2.0/(n+1)
+  print k
+
+  for param, data in processedData.items():
+    firstMA = avgData[param]["averages"][0]
+    expMA = []
+
+    for i, d in enumerate(data["values"]):
+      ## Initialize exponential moving average (ema)
+      ema = 0
+
+      ## Use the simple moving average for first data point
+      if i == 0:
+        ema = ((d - firstMA) * k) + firstMA
+
+      ## Otherwise use EMA = ((Current price - Previous EMA) * k) + Previous EMA
+      else:
+        ema = ((d - expMA[-1]) * k) + expMA[-1]
+     
+      expMA.append(ema)
+
+    individualAvgData[param] = {
+      "dates": data["dates"],
+      "averages": expMA
     }
 
   return individualAvgData, processedData
@@ -433,7 +475,11 @@ def showMovingAverageAndTotalScore(filecsv, parameter):
   # graphTitle = "Individual 7 Day Moving Average for "
 
   #### This is for 7 POINT EXPONENTIAL moving average
-  avgData, processedData = sevenPointExponentialMovingAverage(filecsv)
+  # avgData, processedData = sevenPointExponentialMovingAverage(filecsv)
+  # graphTitle = "Individual 7 Point Exponential Moving Average for "
+
+  #### This is for 7 POINT EXPONENTIAL moving average - version 2
+  avgData, processedData = sevenPointExponentialMovingAverage2(filecsv)
   graphTitle = "Individual 7 Point Exponential Moving Average for "
 
   ## initialize the plot
