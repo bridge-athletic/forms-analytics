@@ -61,4 +61,4 @@ plog.showMovingAverageAndTotalScore(filecsv, param)
 
 
 # TODOs
-## update moving averages for points and days for the total score to be moving average as well
+## can do 1/n
