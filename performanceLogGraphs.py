@@ -591,6 +591,128 @@ def twentyEightDayExponentialMovingAverage(filecsv):
   return individualAvgData, processedData
 
 
+#### FUNCITON: calculates the standard deviation from score data
+def dataStandardDeviationWithFormScore(filecsv):
+  processedData = dataWithFormScore(filecsv)
+  individualAvgData = {}
+ 
+  for param, data in processedData.items():
+    meanData = []
+    stdData = []
+
+    for i, d in enumerate(data["dates"]):
+      
+      ## For each date, get the mean and std for the past 90 days
+      nintyDaysAgo = (d - datetime.timedelta(days = 90))
+      nintyDayData = []
+      
+      ## Go through dates again to find the values in past 90 days
+      for innerDate in data["dates"]:
+        if ((innerDate < d) and (innerDate > nintyDaysAgo)):
+
+          ## Add the value to the temp list
+          nintyDayData.append(data["values"][i])
+
+      meanData.append(np.mean(nintyDayData))
+      stdData.append(np.std(nintyDayData))
+
+    individualAvgData[param] = {
+      "dates": data["dates"],
+      "values": data["values"],
+      "means": meanData,
+      "std": stdData
+    }
+
+  # print len(data["dates"])
+  # print len(data["values"])
+  # print len(meanData)
+  # print len(stdData)
+
+  ## Add z-score
+  # for param, data in individualAvgData.items():
+  #   zscoreData = []
+
+  #   for i, d in enumerate(data["dates"]):
+
+  #     zscore = (data["values"][i] - 
+
+
+  return individualAvgData, processedData
+
+
+  # ## list is already sorted, so take the first and last date of ["total"]["dates"]
+  # startDate = processedData["total"]["dates"][0]
+  # endDate = processedData["total"]["dates"][-1]
+
+  # ## Get every date between start and end date
+  # allDates = [startDate + datetime.timedelta(days = x) for x in range((endDate - startDate).days + 1)]
+
+  # for param, data in processedData.items():
+  #   allData = []
+  #   means = []
+
+  #   ## Fill allData -1 for any value missing user data
+  #   for date in allDates:
+  #     if (date in data["dates"]):
+  #       ## If date exists in the list, use the recorded data
+  #       idx = data["dates"].index(date)
+  #       allData.append(data["values"][idx])
+  #     else:
+  #       ## Put -1 as filler to filter out later
+  #       allData.append(-1)
+
+
+  #   ### Exponential
+  #   # n = [ 0.015625, 0.03125, 0.0625, 0.125, 0.25, 0.5, 1]
+
+  #   ## Weighted A // 1/2, 1/3...1/14
+  #   # n = [0.0714, 0.0714, 0.0714, 0.0714, 0.0714, 0.0714, 0.0714, 0.0714, 0.0714, 0.0714, 0.0714, 0.0714, 0.0714, 0.0714, 0.0714, 0.0769, 0.0833, 0.0909, 0.1, 0.1111, 0.125, 0.1429, 0.1667, 0.2, 0.25, 0.3333, 0.5, 1]
+
+  #   ## Weighted B // 2/2, 2/3, 2/4...2/14
+  #   # n = [0.1429, 0.1429, 0.1429, 0.1429, 0.1429, 0.1429, 0.1429, 0.1429, 0.1429, 0.1429, 0.1429, 0.1429, 0.1429, 0.1429, 0.1429, 0.1429, 0.1538, 0.1667, 0.1818, 0.2, 0.2222, 0.25, 0.2857, 0.3333, 0.4, 0.5, 0.6667, 1]
+
+  #   ## Starting at the 90th date and get the last 90 day average for each day
+  #   i = 90
+  #   while i < len(allData):
+  #     tempValues = allData[i-89:i+1]
+  #     total = 0.0
+  #     dem = 0.0
+      
+  #     ## Go though list and calculate the average for the last 90 days
+  #     for j, v in enumerate(tempValues):
+  #       if v != -1:
+  #         total += v
+  #         dem += 1
+      
+  #     if total == 0:
+  #       # means.append(None)
+  #       means.append(means[-1])
+  #     else:
+  #       means.append(total/dem)
+      
+  #     ## Go to next 90 days
+  #     i += 1
+
+  #   individualAvgData[param] = {
+  #     "dates": allDates[89:],
+  #     "values": data["values"][89:],
+  #     "averages": means
+  #   }
+
+  #   ## now we can get the std for each day 
+  #   ## need to do this manually since so much of the data is missing and needed to calculate mean 
+  #   for param, data in individualAvgData.items():
+  #     std = []
+      
+  #     ## Go through the values and calculate the std for each corresponding day
+  #     for k, x in enumerate(data["values"]):
+  #       if x != -1:
+  #         tempStd = (x - data["averages"][k])/
+
+
+
+  # return individualAvgData, processedData
+
 #### FUNCTION: takes moving average data and plots it with the form score
 def showMovingAverageAndTotalScore(filecsv, parameter):
 

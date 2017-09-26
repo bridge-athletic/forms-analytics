@@ -53,8 +53,8 @@ plog.showMovingAverageAndTotalScore(filecsv, param)
 
 
 #### Show moving averages (7 point or 7 day) for one parameter with total score
-# param = "nutrition"
-# plog.sevenPointExponentialMovingAverage(filecsv, param)
+# param = "overall"
+# plog.dataStandardDeviationWithFormScore(filecsv)
 
 
 
