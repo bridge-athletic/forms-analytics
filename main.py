@@ -48,13 +48,14 @@ filecsv = 'Individual_performance_log_data.csv'
 
 
 #### Show moving averages (7 point or 7 day) for one parameter with total score
-param = "overall"
-plog.showMovingAverageAndTotalScore(filecsv, param)
-
-
-#### Show moving averages (7 point or 7 day) for one parameter with total score
 # param = "overall"
-# plog.dataStandardDeviationWithFormScore(filecsv)
+# plog.showMovingAverageAndTotalScore(filecsv, param)
+
+
+#### Show z score for each category with total z score
+param = "overall"
+plog.showCategoryZScoreAndTotalZScore(filecsv, param)
+
 
 
 

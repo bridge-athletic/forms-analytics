@@ -559,7 +559,7 @@ def twentyEightDayExponentialMovingAverage(filecsv):
     # n = [0.0714, 0.0714, 0.0714, 0.0714, 0.0714, 0.0714, 0.0714, 0.0714, 0.0714, 0.0714, 0.0714, 0.0714, 0.0714, 0.0714, 0.0714, 0.0769, 0.0833, 0.0909, 0.1, 0.1111, 0.125, 0.1429, 0.1667, 0.2, 0.25, 0.3333, 0.5, 1]
 
     ## Weighted B // 2/2, 2/3, 2/4...2/14
-    # n = [0.1429, 0.1429, 0.1429, 0.1429, 0.1429, 0.1429, 0.1429, 0.1429, 0.1429, 0.1429, 0.1429, 0.1429, 0.1429, 0.1429, 0.1429, 0.1429, 0.1538, 0.1667, 0.1818, 0.2, 0.2222, 0.25, 0.2857, 0.3333, 0.4, 0.5, 0.6667, 1]
+    n = [0.1429, 0.1429, 0.1429, 0.1429, 0.1429, 0.1429, 0.1429, 0.1429, 0.1429, 0.1429, 0.1429, 0.1429, 0.1429, 0.1429, 0.1429, 0.1429, 0.1538, 0.1667, 0.1818, 0.2, 0.2222, 0.25, 0.2857, 0.3333, 0.4, 0.5, 0.6667, 1]
 
     ## Starting at the 7th number
     i = 27
@@ -592,7 +592,7 @@ def twentyEightDayExponentialMovingAverage(filecsv):
 
 
 #### FUNCITON: calculates the standard deviation from score data
-def dataStandardDeviationWithFormScore(filecsv):
+def dataZScoreWithFormScore(filecsv):
   processedData = dataWithFormScore(filecsv)
   individualAvgData = {}
  
@@ -600,21 +600,30 @@ def dataStandardDeviationWithFormScore(filecsv):
     meanData = []
     stdData = []
 
-    for i, d in enumerate(data["dates"]):
+    print data["values"]
+    print data["dates"]
+
+    for d in data["dates"]:
       
       ## For each date, get the mean and std for the past 90 days
       nintyDaysAgo = (d - datetime.timedelta(days = 90))
       nintyDayData = []
       
       ## Go through dates again to find the values in past 90 days
-      for innerDate in data["dates"]:
+      for j, innerDate in enumerate(data["dates"]):
         if ((innerDate < d) and (innerDate > nintyDaysAgo)):
 
           ## Add the value to the temp list
-          nintyDayData.append(data["values"][i])
+          nintyDayData.append(data["values"][j])
+          # print "APPENDING"
+          # print data["values"][i]
 
+      # print nintyDayData
+      # print ("STD HERE")
+      # print np.std(nintyDayData)
       meanData.append(np.mean(nintyDayData))
       stdData.append(np.std(nintyDayData))
+
 
     individualAvgData[param] = {
       "dates": data["dates"],
@@ -628,14 +637,23 @@ def dataStandardDeviationWithFormScore(filecsv):
   # print len(meanData)
   # print len(stdData)
 
-  ## Add z-score
-  # for param, data in individualAvgData.items():
-  #   zscoreData = []
+  # Add z-score
+  for param, data in individualAvgData.items():
+    zscoreData = []
 
-  #   for i, d in enumerate(data["dates"]):
+    for i, d in enumerate(data["dates"]):
+      # print "data"
+      # print data["values"][i]
+      # print "mean"
+      # print data["means"][i]
+      # print "std"
+      # print data["std"][i]
 
-  #     zscore = (data["values"][i] - 
+      zscore = (data["values"][i] - data["means"][i]) / data["std"][i]
+      zscoreData.append(zscore)
 
+    individualAvgData[param]["zscore"] = zscoreData
+    print individualAvgData[param]["zscore"]
 
   return individualAvgData, processedData
 
@@ -709,9 +727,8 @@ def dataStandardDeviationWithFormScore(filecsv):
   #       if x != -1:
   #         tempStd = (x - data["averages"][k])/
 
-
-
   # return individualAvgData, processedData
+
 
 #### FUNCTION: takes moving average data and plots it with the form score
 def showMovingAverageAndTotalScore(filecsv, parameter):
@@ -742,9 +759,19 @@ def showMovingAverageAndTotalScore(filecsv, parameter):
   # filename = "_7DAY_Exponential_Moving_Average.png"
 
   #### This is for 7 DAY EXPONENTIAL moving average
+  # avgData, processedData = sevenDayExponentialMovingAverage(filecsv)
+  # graphTitle = "Individual 7 Day Weighted Moving Average"
+  # filename = "_B_7DAY_Weighted_Moving_Average.png"
+
+  #### This is for 7 DAY EXPONENTIAL moving average
+  # avgData, processedData = twentyEightDayExponentialMovingAverage(filecsv)
+  # graphTitle = "Individual 28 Day Moving Average"
+  # filename = "_B_28DAY_Moving_Moving_Average.png"
+
+  #### This is for Z-SCORE of each category with form total 
   avgData, processedData = twentyEightDayExponentialMovingAverage(filecsv)
-  graphTitle = "Individual 28 Day Moving Moving Average"
-  filename = "_28DAY_Moving_Moving_Average.png"
+  graphTitle = "Individual 28 Day Moving Average"
+  filename = "_B_28DAY_Moving_Moving_Average.png"
 
 
   ## initialize the plot
@@ -810,7 +837,81 @@ def showMovingAverageAndTotalScore(filecsv, parameter):
   ax.set_ylabel('Values')
   ax.set_title(graphTitle)
   
-  # plt.savefig(parameter + filename)
+  plt.savefig(parameter + filename)
+  plt.show()
+
+
+def showCategoryZScoreAndTotalZScore(filecsv, parameter):
+
+  #### This is for 7 DAY EXPONENTIAL moving average
+  avgData, processedData = dataZScoreWithFormScore(filecsv)
+  graphTitle = "Individual Z Score with Total Z Score"
+  filename = "_Z_Score.png"
+
+  ## initialize the plot
+  fig, ax = plt.subplots()
+
+  if (parameter == 'fatigue'):
+    ## update data so its out of 100
+    values = avgData["fatigue"]["zscore"]
+    dates = avgData["fatigue"]["dates"]
+    ax.plot(dates, values, label='Fatigue')
+    # graphTitle += 'Fatigue '
+
+  elif (parameter == 'soreness'):
+    dates = avgData["soreness"]["dates"]
+    values = avgData["soreness"]["zscore"]
+    ax.plot(dates, values, label='Soreness')
+    # graphTitle += 'Soreness '
+
+  elif (parameter == 'stress'):
+    dates = avgData["stress"]["dates"]
+    values = avgData["stress"]["zscore"]
+    ax.plot(dates, values, label='Stress')
+    # graphTitle += 'Stress '
+
+  elif (parameter == 'sleep'):
+    dates = avgData["sleep"]["dates"]
+    values = avgData["sleep"]["zscore"]
+    ax.plot(dates, values, label='Sleep')
+    # graphTitle += 'Sleep '
+
+  elif (parameter == 'hydration'):
+    dates = avgData["hydration"]["dates"]
+    values = avgData["hydration"]["zscore"]
+    ax.plot(dates, values, label='Hydration')
+    # graphTitle += 'Hydration '
+
+  elif (parameter == 'nutrition'):
+    dates = avgData["nutrition"]["dates"]
+    values = avgData["nutrition"]["zscore"]
+    ax.plot(dates, values, label='Nutrition')
+    # graphTitle += 'Nutrition '
+
+  elif (parameter == 'overall'):
+    dates = avgData["overall"]["dates"]
+    values = avgData["overall"]["zscore"]
+    ax.plot(dates, values, label='Overall')
+    # graphTitle += 'Overall '
+
+  ## Add the total form score 
+  # totalDates = avgData["total"]["dates"]
+  # totalValues = avgData["total"]["zscore"]
+  # ax.plot(totalDates, totalValues, label='Total Score')
+  # graphTitle += 'with Total Score '
+
+  ax.grid(True)
+  ax.set_ylim(-5, 5)
+  ax.format_xdata = mdates.DateFormatter('%Y-%m-%d')
+  fig.autofmt_xdate()
+  ax.legend(loc=3)
+
+  ## set axes and title
+  ax.set_xlabel('Dates')
+  ax.set_ylabel('Z-score')
+  ax.set_title(graphTitle)
+  
+  plt.savefig(parameter + filename)
   plt.show()
 
 
