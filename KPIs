@@ -1,37 +1,12 @@
 KPIs:
 
-
-1. Athletes parameters (7 total) over time & compare with each other.
-2. Team parameters (7 total) over time & compare with each other.
-3. Athlete parameter vs team parameter over time.
-4. Form score for athlete over time.
-5. Form score for team over time.
-6. Compliance for athlete over time.
-7. Compliance for team over time.
-8. ACWR for athlete parameters.
-9. ACWR for team parameters.
+Correlations:
 
 
-Other ideas:
-- can we see if any of the individual parameters influence their overall score more or less?
-- do the overall and form score show the same thing? Probably they should right?
-
-Notes:
-
-- hard to understand the data when we plot all of it, should limit it to one year // do this next
+correlation between the form score and each parameter
 
 
+fatigue > soreness (exact, fatigue delayed 1 day, fatigue delayed 2 days)
 
+sleep > soreness (exact, sleep delayed 1 day, sleep delayed 2 days)
 
-Notes:
-- commit more often with smaller chunks of code
-- sum for the team 
-- fix the average for replicated pieces
-- plot hours of sleep 
-
-
-Individual users:
-
-
-- organize the functions into a class
-- main file to start it up

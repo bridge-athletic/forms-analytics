@@ -53,13 +53,18 @@ filecsv = 'Individual_performance_log_data.csv'
 
 
 #### Show z score for each category with total z score
-param = "overall"
-plog.showCategoryZScoreAndTotalZScore(filecsv, param)
+# param = "overall"
+# plog.showZscoreMovingAverageAndTotalScore(filecsv, param)
 
+#### Show scatterplot for correlation
+param1 = "fatigue"
+param2 = "nutrition"
+plog.graphScatterPlot(filecsv, param1, param2)
 
 
 
 
 
 # TODOs
-## can do 1/n
+## add weighted t the title 
+## label the z score
