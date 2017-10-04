@@ -48,22 +48,38 @@ filecsv = 'Individual_performance_log_data.csv'
 
 
 #### Show moving averages (7 point or 7 day) for one parameter with total score
-# param = "overall"
+# param = "sleepQuantity"
 # plog.showMovingAverageAndTotalScore(filecsv, param)
 
 
 #### Show z score for each category with total z score
-param = "overall"
-plog.showZscore90DaysVsAllData(filecsv, param)
+# param = "sleepQuantity"
+# plog.showZscore90DaysVsAllData(filecsv, param)
 
-#### Show scatterplot for correlation
-# param1 = "fatigue"
-# param2 = "nutrition"
+
+#### Show z score for each category with total z score
+# param = "overall"
+# plog.createScatterPlotDF(filecsv)
+
+
+#### Show scatterplot
+# param = "total"
+# plog.correlationCoeffiecent(filecsv, param)
+# sleepQuantity
+# sleepQuality
+
+#### Show scatterplot
+# param1 = "stress"
+# param2 = "overall"
 # plog.graphScatterPlot(filecsv, param1, param2)
 
 
+#### Show trends for bridge score (personal history only)
+# plog.graphBridgeScorePH(filecsv)
 
 
+# plog.tableBridgeScores(filecsv)
+plog.graphBridgeScore(filecsv)
 
 # TODOs
 ## add weighted t the title 
