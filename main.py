@@ -79,7 +79,10 @@ filecsv = 'Individual_performance_log_data.csv'
 
 
 # plog.tableBridgeScores(filecsv)
-plog.graphBridgeScore(filecsv)
+# plog.graphBridgeScore(filecsv)
+
+
+plog.generateTotalScoreGP('GP_param_by_date.csv')
 
 # TODOs
 ## add weighted t the title 

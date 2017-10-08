@@ -4,6 +4,14 @@
 # AND formquestionid in (103, 104, 105, 106, 107, 108, 109) 
 # LIMIT 100000;
 
+# SELECT DATE(aup.createdAt) AS createdAt, aup.parameterId, AVG(aup.avgIntValue) AS gpIntValue
+#   FROM (SELECT DATE(createdAt) AS createdAt, userId, parameterId, AVG(intValue) AS avgIntValue 
+#       FROM userparameter 
+#       WHERE userId > 0 AND intValue > 0 AND parameterId IN (492,493,494,495,496,497,498,614)
+#       GROUP BY userId, DATE(createdAt), parameterId) AS aup
+#   WHERE userId > 0 
+#   GROUP BY DATE(createdAt), parameterId;
+
 
 ### Fatigue | 492 | 1 = Good, 5 = Bad
 ### Soreness | 493 | 1 = Good, 5 = Bad
@@ -258,8 +266,8 @@ def dataPostMeanProcessing_oneUser(filecsv):
   return dataPostProcessing
 
 
-#### FUNCTION: calculates form score, does NOT include the hours of sleep
-#### uses the dataPostMeanProcessing function
+#### FUNCTION: calculates form score out of 100 pt scale
+#### Includes hours of sleep
 def dataWithFormScore(filecsv):
   processedData = dataPostMeanProcessing_oneUser(filecsv)
   processedData["total"] = {
@@ -280,16 +288,41 @@ def dataWithFormScore(filecsv):
     numParams = 0
     
     for param, data in processedData.items():
-      ## Don't include hours of sleep
-      if param != "sleepQuantity":
-        if uniqueDate in data["dates"]:
-          idx = data["dates"].index(uniqueDate)
-          sumValue += data["values"][idx]
+      if uniqueDate in data["dates"]:
+        idx = data["dates"].index(uniqueDate)
+        ## Map hours of sleep to score off 100
+        ## Update this to use ln(x) function 
+        if param == "sleepQuantity":
+          if (data["values"][idx] >= 9):
+            sumValue += 100
+            numParams += 1
+          elif (data["values"][idx] >= 8 and data["values"][idx] < 9):
+            sumValue += 90
+            numParams += 1
+          elif (data["values"][idx] >= 7 and data["values"][idx] < 8):
+            sumValue += 80
+            numParams += 1
+          elif (data["values"][idx] >= 6 and data["values"][idx] < 7):
+            sumValue += 70
+            numParams += 1
+          elif (data["values"][idx] >= 5 and data["values"][idx] < 6):
+            sumValue += 55
+            numParams += 1
+          elif (data["values"][idx] >= 4 and data["values"][idx] < 5):
+            sumValue += 40
+            numParams += 1
+          else:
+            sumValue += 0
+            numParams += 1
+
+        elif param != "sleepQuantity":
+          ## put everything on a scale of 100 for the total score
+          sumValue += (data["values"][idx] * 20)
           numParams += 1
 
     processedData["total"]["dates"].append(uniqueDate)
-    maxPts = numParams*5
-    processedData["total"]["values"].append((sumValue*100)/maxPts)
+    maxPts = numParams*100
+    processedData["total"]["values"].append(sumValue/maxPts)
 
   return processedData
 
@@ -1123,7 +1156,7 @@ def fourteenDayWeightedMovingAverageZScore90Days(filecsv):
   return individualAvgData, processedData
 
 
-# #### FUNCTION: takes moving average data and plots it with the form score
+# # #### FUNCTION: takes moving average data and plots it with the form score
 # def showMovingAverageAndTotalScore(filecsv, parameter):
 
 #   #### This is for 7 POINT moving average
@@ -1765,6 +1798,66 @@ def fourteenDayWeightedMovingAverageZScore90Days(filecsv):
 ##########################################################################################
 ##########################################################################################
 
+#### FUNCTION: takes in avg param by date from csv 
+#### creates the total score for each date 
+def generateTotalScoreGP(GPdata):
+  allDates = []
+
+  with open(GPdata) as genPopData:
+    csvReader = csv.reader(genPopData)
+    for row in csvReader:
+      allDates.append(row[0])
+
+  datesUniqueSet = sorted(list(set(allDates)))
+
+  totalScore = {
+    "dates": datesUniqueSet,
+    "sum": [0] * len(datesUniqueSet),
+    "count": [0] * len(datesUniqueSet)
+  }
+
+  with open(GPdata) as genPopData:
+    csvReader = csv.reader(genPopData)
+    for row in csvReader:
+      idx = totalScore["dates"].index(row[0])
+      
+      ## Special mapping for sleep quantity
+      if int(row[1]) == 614:
+        tempVal = ((float(row[2]))/1000.0)
+        ## Put 
+        if (tempVal >= 9):
+          totalScore["sum"][idx] += 100
+          totalScore["count"][idx] += 1
+        elif (tempVal >= 8 and tempVal < 9):
+          totalScore["sum"][idx] += 90
+          totalScore["count"][idx] += 1
+        elif (tempVal >= 7 and tempVal < 8):
+          totalScore["sum"][idx] += 80
+          totalScore["count"][idx] += 1
+        elif (tempVal >= 6 and tempVal < 7):
+          totalScore["sum"][idx] += 70
+          totalScore["count"][idx] += 1
+        elif (tempVal >= 5 and tempVal < 6):
+          totalScore["sum"][idx] += 55
+          totalScore["count"][idx] += 1
+        elif (tempVal >= 4 and tempVal < 5):
+          totalScore["sum"][idx] += 40
+          totalScore["count"][idx] += 1
+        else:
+          totalScore["sum"][idx] += 0
+          totalScore["count"][idx] += 1
+
+      ## not sleep quantity 
+      else:
+        totalScore["sum"][idx] += float(row[2])
+        totalScore["count"][idx] += 1
+
+  print len(totalScore["dates"])
+  print len(totalScore["sum"])
+  print len(totalScore["count"])
+
+
+
 
 #### FUNCITON: calculates the zscore for each parameter 
 #### using the personal history (PH)
@@ -1857,7 +1950,11 @@ def zScoreAllDataGP(filecsv):
       ## Add the z-score for general population data
       individualAvgData[param]["zscoreGP"] = zscoreDataTemp
 
-  return individualAvgData
+  ## send to get the total score here
+  GPdata = 'GP_param_by_date.csv'
+  individualAvgDataWithGPTotal = generateTotalScoreGP(GPdata, individualAvgData)
+
+  return individualAvgDataWithGPTotal
 
 
 #### FUNCTION: calculates the 14 day weighted moving average of the z-score using the PH data
@@ -2055,11 +2152,22 @@ def graphBridgeScore(filecsv):
   fig, ax = plt.subplots()
   graphTitle = "Bridge Score"
 
-  for param, data in bridgeScoreData.items():
-    if param != "total":
-      values = bridgeScoreData[param]["bridgeScore"][89:]
-      dates = bridgeScoreData[param]["datesMovingAveragePH"][89:]
-      ax.plot(dates, values, label=param)
+
+  values = bridgeScoreData["hydration"]["bridgeScore"][89:]
+  dates = bridgeScoreData["hydration"]["datesMovingAveragePH"][89:]
+  ax.plot(dates, values, label="Hydration")
+
+  values2 = bridgeScoreData["overall"]["bridgeScore"][89:]
+  dates2 = bridgeScoreData["overall"]["datesMovingAveragePH"][89:]
+  ax.plot(dates2, values2, label="Overall")
+
+
+
+  # for param, data in bridgeScoreData.items():
+  #   if param != "total":
+  #     values = bridgeScoreData[param]["bridgeScore"][89:]
+  #     dates = bridgeScoreData[param]["datesMovingAveragePH"][89:]
+  #     ax.plot(dates, values, label=param)
 
   ax.grid(True)
   ax.set_ylim(0, 105)
