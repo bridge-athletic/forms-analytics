@@ -82,8 +82,32 @@ filecsv = 'Individual_performance_log_data.csv'
 # plog.graphBridgeScore(filecsv)
 
 
-plog.generateTotalScoreGP('GP_param_by_date.csv')
+#### data with form score and sleep quantity
+plog.loadGPscores_oneUser('GP_param_intValue_by_date.csv')
 
-# TODOs
-## add weighted t the title 
-## label the z score
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

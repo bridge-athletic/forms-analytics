@@ -290,6 +290,7 @@ def dataWithFormScore(filecsv):
     for param, data in processedData.items():
       if uniqueDate in data["dates"]:
         idx = data["dates"].index(uniqueDate)
+        
         ## Map hours of sleep to score off 100
         ## Update this to use ln(x) function 
         if param == "sleepQuantity":
@@ -315,6 +316,7 @@ def dataWithFormScore(filecsv):
             sumValue += 0
             numParams += 1
 
+        ## If not sleepQuantity, map scores out of 100 
         elif param != "sleepQuantity":
           ## put everything on a scale of 100 for the total score
           sumValue += (data["values"][idx] * 20)
@@ -322,8 +324,9 @@ def dataWithFormScore(filecsv):
 
     processedData["total"]["dates"].append(uniqueDate)
     maxPts = numParams*100
-    processedData["total"]["values"].append(sumValue/maxPts)
+    processedData["total"]["values"].append((sumValue*100)/maxPts)
 
+  # print processedData["total"]
   return processedData
 
 
@@ -1798,65 +1801,195 @@ def fourteenDayWeightedMovingAverageZScore90Days(filecsv):
 ##########################################################################################
 ##########################################################################################
 
-#### FUNCTION: takes in avg param by date from csv 
-#### creates the total score for each date 
-def generateTotalScoreGP(GPdata):
-  allDates = []
 
-  with open(GPdata) as genPopData:
-    csvReader = csv.reader(genPopData)
-    for row in csvReader:
-      allDates.append(row[0])
-
-  datesUniqueSet = sorted(list(set(allDates)))
-
-  totalScore = {
-    "dates": datesUniqueSet,
-    "sum": [0] * len(datesUniqueSet),
-    "count": [0] * len(datesUniqueSet)
+#### FUNCTION: takes in avg intValue per param by date from csv 
+#### finds the mean and std for each parameter 
+def loadGPscores_oneUser(GPdata):
+ ## empty dictionary to be filled with general pop data
+  generalPopulationData = {
+    "fatigue": {
+      "values": [],
+      "mean": 0,
+      "std": 0
+    },
+    "soreness": {
+      "values": [],
+      "mean": 0,
+      "std": 0
+    },
+    "stress": {
+      "values": [],
+      "mean": 0,
+      "std": 0
+    },
+    "sleepQuality": {
+      "values": [],
+      "mean": 0,
+      "std": 0
+    },
+    "sleepQuantity": {
+      "values": [],
+      "mean": 0,
+      "std": 0
+    },
+    "nutrition": {
+      "values": [],
+      "mean": 0,
+      "std": 0
+    },
+    "hydration": {
+      "values": [],
+      "mean": 0,
+      "std": 0
+    },
+    "overall": {
+      "values": [],
+      "mean": 0,
+      "std": 0
+    }
   }
 
-  with open(GPdata) as genPopData:
-    csvReader = csv.reader(genPopData)
+  ## Get a list of all dates
+  datesRaw = []
+
+  with open(GPdata) as generalPopData:
+    csvReader = csv.reader(generalPopData)
+
     for row in csvReader:
-      idx = totalScore["dates"].index(row[0])
+      intValue = float(row[0])
+      param = int(row[2])
+      datesRaw.append(datetime.date.fromtimestamp(int(row[1])))
       
-      ## Special mapping for sleep quantity
-      if int(row[1]) == 614:
-        tempVal = ((float(row[2]))/1000.0)
-        ## Put 
-        if (tempVal >= 9):
-          totalScore["sum"][idx] += 100
-          totalScore["count"][idx] += 1
-        elif (tempVal >= 8 and tempVal < 9):
-          totalScore["sum"][idx] += 90
-          totalScore["count"][idx] += 1
-        elif (tempVal >= 7 and tempVal < 8):
-          totalScore["sum"][idx] += 80
-          totalScore["count"][idx] += 1
-        elif (tempVal >= 6 and tempVal < 7):
-          totalScore["sum"][idx] += 70
-          totalScore["count"][idx] += 1
-        elif (tempVal >= 5 and tempVal < 6):
-          totalScore["sum"][idx] += 55
-          totalScore["count"][idx] += 1
-        elif (tempVal >= 4 and tempVal < 5):
-          totalScore["sum"][idx] += 40
-          totalScore["count"][idx] += 1
+
+      ## If param is fatigue, stress or soreness we subtract from 5 to get the score
+      if param == 492:
+        generalPopulationData["fatigue"]["values"].append((5 - intValue) * 20)
+      
+      if param == 493:
+        generalPopulationData["soreness"]["values"].append((5 - intValue) * 20)
+
+      if param == 494:
+        generalPopulationData["stress"]["values"].append((5 - intValue) * 20)
+
+      ## Other params just go to a 100 pt scale
+      if param == 495:
+        generalPopulationData["sleepQuality"]["values"].append(intValue * 20)
+      
+      if param == 496:
+        generalPopulationData["nutrition"]["values"].append(intValue * 20)
+
+      if param == 497:
+        generalPopulationData["hydration"]["values"].append(intValue * 20)
+
+      if param == 498:
+        generalPopulationData["overall"]["values"].append(intValue * 20)
+
+      ## Map the hours of sleep to score for the total score calculation
+      if param == 614:
+          if (intValue >= 9):
+            generalPopulationData["sleepQuantity"]["values"].append(100)
+          elif (intValue >= 8 and intValue < 9):
+            generalPopulationData["sleepQuantity"]["values"].append(90)
+          elif (intValue >= 7 and intValue < 8):
+            generalPopulationData["sleepQuantity"]["values"].append(80)
+          elif (intValue >= 6 and intValue < 7):
+            generalPopulationData["sleepQuantity"]["values"].append(70)
+          elif (intValue >= 5 and intValue < 6):
+            generalPopulationData["sleepQuantity"]["values"].append(55)
+          elif (intValue >= 4 and intValue < 5):
+            generalPopulationData["sleepQuantity"]["values"].append(40)
+          else:
+            generalPopulationData["sleepQuantity"]["values"].append(0)
+    
+  ## Go through the object we just created and find the mean and std
+  for param, data in generalPopulationData.items():
+
+    generalPopulationData[param]["mean"] = np.mean(generalPopulationData[param]["values"])
+    generalPopulationData[param]["std"] = np.std(generalPopulationData[param]["values"])
+
+    ## Remove the values list, not necessary to pass through and its very long
+    del generalPopulationData[param]["values"]
+
+
+  datesUniqueSet = sorted(list(set(datesRaw)))
+
+  ## Get total score, pass in all unique dates and csv again
+  totalScoreData = getTotalScorePerDate(datesUniqueSet, GPdata)
+
+  generalPopulationData["total"] = {
+    # "values": totalScoreData["totalScore"],
+    "mean": np.mean(totalScoreData["totalScore"]),
+    "std": np.std(totalScoreData["totalScore"])
+  }
+
+  print generalPopulationData
+
+  return generalPopulationData
+
+
+#### FUNCTION: calculates form score out of 100 pt scale
+#### Includes hours of sleep
+def getTotalScorePerDate(dates, filecsv):
+
+  totalScoreData = {
+    "dates": dates,
+    "sum": [0] * len(dates),
+    "count": [0] * len(dates),
+    "totalScore": []
+  }
+
+  with open(filecsv) as generalPopData:
+    csvReader = csv.reader(generalPopData)
+
+    for row in csvReader:
+      intValue = float(row[0])
+      param = int(row[2])
+      date = datetime.date.fromtimestamp(int(row[1]))
+
+      ## Find index of date in list of unique dates
+      idx = totalScoreData["dates"].index(date)
+
+      ## If param is fatigue, stress or soreness we subtract from 5 to get the score then go to 100 pt scale
+      if ((param == 492) or (param == 493) or (param == 494)):
+        totalScoreData["sum"][idx] += ((5 - intValue) * 20)
+        ## Add 100 for total possible points for each score added
+        totalScoreData["count"][idx] += 100
+      
+      ## Other params just go to a 100 pt scale
+      elif ((param == 495) or (param == 496) or (param == 497) or (param == 498)):
+        totalScoreData["sum"][idx] += (intValue * 20)
+        ## Add 100 for total possible points for each score added
+        totalScoreData["count"][idx] += 100
+
+      ## Map the hours of sleep to score for the total score calculation
+      elif (param -- 614):
+        if (intValue >= 9):
+          totalScoreData["sum"][idx] += (100)
+          totalScoreData["count"][idx] += 100
+        elif (intValue >= 8 and intValue < 9):
+          totalScoreData["sum"][idx] += (90)
+          totalScoreData["count"][idx] += 100
+        elif (intValue >= 7 and intValue < 8):
+          totalScoreData["sum"][idx] += (80)
+          totalScoreData["count"][idx] += 100
+        elif (intValue >= 6 and intValue < 7):
+          totalScoreData["sum"][idx] += (70)
+          totalScoreData["count"][idx] += 100
+        elif (intValue >= 5 and intValue < 6):
+          totalScoreData["sum"][idx] += (55)
+          totalScoreData["count"][idx] += 100
+        elif (intValue >= 4 and intValue < 5):
+          totalScoreData["sum"][idx] += (40)
+          totalScoreData["count"][idx] += 100
         else:
-          totalScore["sum"][idx] += 0
-          totalScore["count"][idx] += 1
+          # totalScoreData["sum"][idx] += (0)
+          totalScoreData["count"][idx] += 100
 
-      ## not sleep quantity 
-      else:
-        totalScore["sum"][idx] += float(row[2])
-        totalScore["count"][idx] += 1
+  ## Go through the data and calculate form score per day 
+  for i, s in enumerate(totalScoreData["sum"]):
+    totalScoreData["totalScore"].append((s*100)/(totalScoreData["count"][i]))
 
-  print len(totalScore["dates"])
-  print len(totalScore["sum"])
-  print len(totalScore["count"])
-
-
+  return totalScoreData
 
 
 #### FUNCITON: calculates the zscore for each parameter 
@@ -1926,13 +2059,13 @@ def zScoreAllDataGP(filecsv):
   ## Already have the PH data from this function
   individualAvgData = zScorePH90Days(filecsv)
 
-  with open('paramId_std_avg.csv') as generalPopData:
-    csvReader = csv.reader(generalPopData)
+  # with open('paramId_std_avg.csv') as generalPopData:
+  #   csvReader = csv.reader(generalPopData)
 
-    for row in csvReader:
-      ## Add the std and mean for general population, note this is an int NOT a list
-      individualAvgData[str(row[0])]["stdGP"] = float(row[1])
-      individualAvgData[str(row[0])]["meanGP"] = float(row[2])
+  #   for row in csvReader:
+  #     ## Add the std and mean for general population, note this is an int NOT a list
+  #     individualAvgData[str(row[0])]["stdGP"] = float(row[1])
+  #     individualAvgData[str(row[0])]["meanGP"] = float(row[2])
 
   # Add z-score for all data avg and std
   for param, data in individualAvgData.items():
@@ -2086,7 +2219,7 @@ def calculatePersonalHistoryBridgeScore(filecsv):
 
   for param, data in individualData.items():
     ## Approximating e = 2.718281
-    bridgeScorePersonalHistory = [(3/(3+((np.power([2.718281], [-x]))[0]))) for x in data["weightedMovingAveragePH"]]
+    bridgeScorePersonalHistory = [(4/(4+((np.power([2.718281], [-x]))[0]))) for x in data["weightedMovingAveragePH"]]
 
     individualData[param]["bridgeScorePH"] = bridgeScorePersonalHistory
 
@@ -2101,7 +2234,7 @@ def calculateGeneralPopulationBridgeScore(filecsv):
 
   for param, data in individualData.items():
     if param != "total":
-      bridgeScorePersonalHistory = [(3/(3+((np.power([2.718281], [-x]))[0]))) for x in data["weightedMovingAverageGP"]]
+      bridgeScorePersonalHistory = [(4/(4+((np.power([2.718281], [-x]))[0]))) for x in data["weightedMovingAverageGP"]]
 
       individualData[param]["bridgeScoreGP"] = bridgeScorePersonalHistory
 
