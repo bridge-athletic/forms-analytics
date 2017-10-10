@@ -178,47 +178,64 @@ def loadScores_oneUser(filecsv):
       if (int(row[1]) == 492):
         individualPerformanceLogScores["fatigue"]["dates"].append(date)
         ## calculate score for fatigue
-        score = ((5 - int(row[3])) + 1)
+        score = ((5 - int(row[3])) * 20)
         individualPerformanceLogScores["fatigue"]["values"].append(score)
       
       ## soreness data; parameterId 493
       if (int(row[1]) == 493):
         individualPerformanceLogScores["soreness"]["dates"].append(date)
         ## calculate score for soreness
-        score = ((5 - int(row[3])) + 1)
+        score = ((5 - int(row[3])) * 20)
         individualPerformanceLogScores["soreness"]["values"].append(score)
       
       ## stress data; parameterId 494
       if (int(row[1]) == 494):
         individualPerformanceLogScores["stress"]["dates"].append(date)
         ## calculate score for sleepQuality
-        score = ((5 - int(row[3])) + 1)
-        individualPerformanceLogScores["stress"]["values"].append(int(row[3]))
+        score = ((5 - int(row[3])) * 20)
+        individualPerformanceLogScores["stress"]["values"].append(score)
       
       ## sleepQuality data; parameterId 495
       if (int(row[1]) == 495):
         individualPerformanceLogScores["sleepQuality"]["dates"].append(date)
-        individualPerformanceLogScores["sleepQuality"]["values"].append(int(row[3]))
+        individualPerformanceLogScores["sleepQuality"]["values"].append((int(row[3])) * 20)
       
       ## sleepQuantity data; parameterId 614
       if (int(row[1]) == 614):
+        score = 0
+        intValue = ((int(row[3]))/1000.0)
+        if (intValue >= 9):
+          score = 100
+        elif (intValue >= 8 and intValue < 9):
+          score = 90
+        elif (intValue >= 7 and intValue < 8):
+          score = 80
+        elif (intValue >= 6 and intValue < 7):
+          score = 70
+        elif (intValue >= 5 and intValue < 6):
+          score = 55
+        elif (intValue >= 4 and intValue < 5):
+          score = 40
+        else:
+          score = 0
+        
         individualPerformanceLogScores["sleepQuantity"]["dates"].append(date)
-        individualPerformanceLogScores["sleepQuantity"]["values"].append((int(row[3]))/1000.0)
+        individualPerformanceLogScores["sleepQuantity"]["values"].append(score)
 
       ## nutrition data; parameterId 496
       if (int(row[1]) == 496):
         individualPerformanceLogScores["nutrition"]["dates"].append(date)
-        individualPerformanceLogScores["nutrition"]["values"].append(int(row[3]))
+        individualPerformanceLogScores["nutrition"]["values"].append((int(row[3])) * 20)
       
       ## hydration data; parameterId 497
       if (int(row[1]) == 497):
         individualPerformanceLogScores["hydration"]["dates"].append(date)
-        individualPerformanceLogScores["hydration"]["values"].append(int(row[3]))
+        individualPerformanceLogScores["hydration"]["values"].append((int(row[3])) * 20)
       
       ## overall data; parameterId 498
       if (int(row[1]) == 498):
         individualPerformanceLogScores["overall"]["dates"].append(date)
-        individualPerformanceLogScores["overall"]["values"].append(int(row[3]))
+        individualPerformanceLogScores["overall"]["values"].append((int(row[3])) * 20)
 
   return individualPerformanceLogScores
 
@@ -278,8 +295,7 @@ def dataWithFormScore(filecsv):
   allDates = []
   # build array with all dates from each param list
   for param, data in processedData.items():
-    if param != "sleepQuantity":
-      allDates += data['dates']
+    allDates += data['dates']
 
   uniqueAllDates = sorted(list(set(allDates)))
   for uniqueDate in uniqueAllDates:
@@ -316,10 +332,8 @@ def dataWithFormScore(filecsv):
             sumValue += 0
             numParams += 1
 
-        ## If not sleepQuantity, map scores out of 100 
         elif param != "sleepQuantity":
-          ## put everything on a scale of 100 for the total score
-          sumValue += (data["values"][idx] * 20)
+          sumValue += (data["values"][idx])
           numParams += 1
 
     processedData["total"]["dates"].append(uniqueDate)
@@ -1922,7 +1936,7 @@ def loadGPscores_oneUser(GPdata):
     "std": np.std(totalScoreData["totalScore"])
   }
 
-  print generalPopulationData
+  # print generalPopulationData
 
   return generalPopulationData
 
@@ -2024,7 +2038,6 @@ def zScorePH90Days(filecsv):
       meanPH.append(np.mean(ninetyDayData))
       stdPH.append(np.std(ninetyDayData))
 
-
     individualAvgData[param] = {
       "dates": data["dates"],
       "values": data["values"],
@@ -2048,6 +2061,8 @@ def zScorePH90Days(filecsv):
     ## Add z-score to the data in the object to return
     individualAvgData[param]["zscorePH"] = zscoreData
 
+  # print individualAvgData
+
   ## Returns object of parameters with dates, score values, means, stds, and z-scores using the 90 day personal history
   return individualAvgData
 
@@ -2059,35 +2074,23 @@ def zScoreAllDataGP(filecsv):
   ## Already have the PH data from this function
   individualAvgData = zScorePH90Days(filecsv)
 
-  # with open('paramId_std_avg.csv') as generalPopData:
-  #   csvReader = csv.reader(generalPopData)
-
-  #   for row in csvReader:
-  #     ## Add the std and mean for general population, note this is an int NOT a list
-  #     individualAvgData[str(row[0])]["stdGP"] = float(row[1])
-  #     individualAvgData[str(row[0])]["meanGP"] = float(row[2])
+  generalPopulationData = loadGPscores_oneUser('GP_param_intValue_by_date.csv')
 
   # Add z-score for all data avg and std
   for param, data in individualAvgData.items():
-    
-    ## Don't want to include total because don't have total for the general population
-    if param != "total":
-      zscoreDataTemp = []
-    
-      for i, d in enumerate(data["dates"]):
 
-        ## Calculate the score for each date using the general population data
-        zscore = (data["values"][i] - data["meanGP"]) / data["stdGP"]
-        zscoreDataTemp.append(zscore)
+    zscoreDataTemp = []
+  
+    for i, d in enumerate(data["dates"]):
 
-      ## Add the z-score for general population data
-      individualAvgData[param]["zscoreGP"] = zscoreDataTemp
+      ## Calculate the score for each date using the general population data
+      zscore = (data["values"][i] - generalPopulationData[param]["mean"]) / generalPopulationData[param]["std"]
+      zscoreDataTemp.append(zscore)
 
-  ## send to get the total score here
-  GPdata = 'GP_param_by_date.csv'
-  individualAvgDataWithGPTotal = generateTotalScoreGP(GPdata, individualAvgData)
+    ## Add the z-score for general population data
+    individualAvgData[param]["zscoreGP"] = zscoreDataTemp
 
-  return individualAvgDataWithGPTotal
+  return individualAvgData
 
 
 #### FUNCTION: calculates the 14 day weighted moving average of the z-score using the PH data
@@ -2163,50 +2166,49 @@ def fourteenDayWeightedMovingAverageZScoreGP(filecsv):
   allDates = [startDate + datetime.timedelta(days = x) for x in range((endDate - startDate).days + 1)]
 
   for param, data in individualAvgData.items():
-    if param != "total":
-      ## Initialize the list to hold the z-score
-      tempZscores = []
+    ## Initialize the list to hold the z-score
+    tempZscores = []
+    
+    ## Initialize array
+    tempMovingAverages = []
+
+    ## Fill with -1 for any value missing recorded user data
+    for date in allDates:
+      ## If date exists in the parameter's date list, use the recorded data
+      if (date in data["dates"]):
+        idx = data["dates"].index(date)
+        tempZscores.append(data["zscoreGP"][idx])
+      else:
+        ## Put -1 as filler to filter out later
+        tempZscores.append(-1)
+
+    ## Weighted B
+    n = [0.1429, 0.1429, 0.1538, 0.1667, 0.1818, 0.2, 0.2222, 0.25, 0.2857, 0.3333, 0.4, 0.5, 0.6667, 1]
+
+    ## Starting at the 13th number
+    i = 13
+    while i < len(tempZscores):
+      tempValuesAll = tempZscores[i-13:i+1]
+      weightedSum = 0.0
+      totalCoefficient = 0.0
       
-      ## Initialize array
-      tempMovingAverages = []
+      ## First go though list and calculate the moving average for the selected seven days for all data
+      for j, v in enumerate(tempValuesAll):
+        if v != -1:
+          weightedSum += (v * n[j])
+          totalCoefficient += n[j]
+      
+      if weightedSum == 0:
+        tempMovingAverages.append(tempMovingAverages[-1])
+      else:
+        tempMovingAverages.append(weightedSum/totalCoefficient)
+      
+      ## Go to next 14 days
+      i += 1
 
-      ## Fill with -1 for any value missing recorded user data
-      for date in allDates:
-        ## If date exists in the parameter's date list, use the recorded data
-        if (date in data["dates"]):
-          idx = data["dates"].index(date)
-          tempZscores.append(data["zscoreGP"][idx])
-        else:
-          ## Put -1 as filler to filter out later
-          tempZscores.append(-1)
-
-      ## Weighted B
-      n = [0.1429, 0.1429, 0.1538, 0.1667, 0.1818, 0.2, 0.2222, 0.25, 0.2857, 0.3333, 0.4, 0.5, 0.6667, 1]
-
-      ## Starting at the 13th number
-      i = 13
-      while i < len(tempZscores):
-        tempValuesAll = tempZscores[i-13:i+1]
-        weightedSum = 0.0
-        totalCoefficient = 0.0
-        
-        ## First go though list and calculate the moving average for the selected seven days for all data
-        for j, v in enumerate(tempValuesAll):
-          if v != -1:
-            weightedSum += (v * n[j])
-            totalCoefficient += n[j]
-        
-        if weightedSum == 0:
-          tempMovingAverages.append(tempMovingAverages[-1])
-        else:
-          tempMovingAverages.append(weightedSum/totalCoefficient)
-        
-        ## Go to next 14 days
-        i += 1
-
-      ## Add averages using the z score from personal history data
-      individualAvgData[param]["datesMovingAverageGP"] = allDates[13:]
-      individualAvgData[param]["weightedMovingAverageGP"] = tempMovingAverages
+    ## Add averages using the z score from personal history data
+    individualAvgData[param]["datesMovingAverageGP"] = allDates[13:]
+    individualAvgData[param]["weightedMovingAverageGP"] = tempMovingAverages
 
   return individualAvgData
 
@@ -2219,7 +2221,7 @@ def calculatePersonalHistoryBridgeScore(filecsv):
 
   for param, data in individualData.items():
     ## Approximating e = 2.718281
-    bridgeScorePersonalHistory = [(4/(4+((np.power([2.718281], [-x]))[0]))) for x in data["weightedMovingAveragePH"]]
+    bridgeScorePersonalHistory = [((4/(4+((np.power([2.718281], [-x]))[0]))) * 100) for x in data["weightedMovingAveragePH"]]
 
     individualData[param]["bridgeScorePH"] = bridgeScorePersonalHistory
 
@@ -2233,10 +2235,9 @@ def calculateGeneralPopulationBridgeScore(filecsv):
   individualData = calculatePersonalHistoryBridgeScore(filecsv)
 
   for param, data in individualData.items():
-    if param != "total":
-      bridgeScorePersonalHistory = [(4/(4+((np.power([2.718281], [-x]))[0]))) for x in data["weightedMovingAverageGP"]]
+    bridgeScorePersonalHistory = [((4/(4+((np.power([2.718281], [-x]))[0]))) * 100) for x in data["weightedMovingAverageGP"]]
 
-      individualData[param]["bridgeScoreGP"] = bridgeScorePersonalHistory
+    individualData[param]["bridgeScoreGP"] = bridgeScorePersonalHistory
 
   return individualData
 
@@ -2247,21 +2248,24 @@ def calculateBridgeScore(filecsv):
 
   for param, data in individualData.items():
     dataBridgeScore = []
-    
-    ## Need to find a way to get total for the GP 
-    if param != "total":
 
-      ## Can assume that the date exists in general population because this user is in the general population
-      for i, d in enumerate(data["datesMovingAveragePH"]):
-        dataBridgeScore.append(((0.67*(data["bridgeScorePH"][i])) + (0.33*(data["bridgeScoreGP"][i]))) * 100)
-      
-      individualData[param]["bridgeScore"] = dataBridgeScore
+    ## Can assume that the date exists in general population because this user is in the general population
+    for i, d in enumerate(data["datesMovingAveragePH"]):
+      dataBridgeScore.append((0.67*(data["bridgeScorePH"][i])) + (0.33*(data["bridgeScoreGP"][i])))
+    
+    individualData[param]["bridgeScore"] = dataBridgeScore
+
   return individualData
 
 
 #### FUNCTION: create table of scores for each parameter
 def tableBridgeScores(filecsv):
   bridgeScoreData = calculateBridgeScore(filecsv)
+
+  # print len(bridgeScoreData["total"]["bridgeScorePH"])
+  # print len(bridgeScoreData["total"]["bridgeScoreGP"])
+  # print len(bridgeScoreData["total"]["datesMovingAveragePH"])
+
 
   with open('bridgeScores_user_4349.csv', 'wb') as bridgeScoreTable:
     writer = csv.writer(bridgeScoreTable)
@@ -2272,10 +2276,9 @@ def tableBridgeScores(filecsv):
     writer.writerow([datetime.date.isoformat(d) for d in dates])
 
     for param, data in bridgeScoreData.items():
-      if param != "total":
-        scoreData = copy.deepcopy(data["bridgeScore"][89:])
-        scoreData.insert(0, param)
-        writer.writerow([(round((x*1.0),4)) if (isinstance(x, float) or isinstance(x, int)) else x for x in scoreData])
+      scoreData = copy.deepcopy(data["bridgeScore"][89:])
+      scoreData.insert(0, param)
+      writer.writerow([(round((x*1.0),4)) if (isinstance(x, float) or isinstance(x, int)) else x for x in scoreData])
 
 
 #### FUNCTION: show bridge score for all parameters and total score over time (personal history only)
@@ -2283,24 +2286,34 @@ def graphBridgeScore(filecsv):
   bridgeScoreData = calculateBridgeScore(filecsv)
 
   fig, ax = plt.subplots()
-  graphTitle = "Bridge Score"
+  graphTitle = "Total - Scores"
+
+  # values = bridgeScoreData["overall"]["bridgeScore"][89:]
+  # dates = bridgeScoreData["overall"]["datesMovingAveragePH"][89:]
+  # ax.plot(dates, values, label="Overall")
+
+  # values2 = bridgeScoreData["total"]["bridgeScore"][89:]
+  # dates2 = bridgeScoreData["total"]["datesMovingAveragePH"][89:]
+  # ax.plot(dates2, values2, label="Total")
 
 
-  values = bridgeScoreData["hydration"]["bridgeScore"][89:]
-  dates = bridgeScoreData["hydration"]["datesMovingAveragePH"][89:]
-  ax.plot(dates, values, label="Hydration")
+  values = bridgeScoreData["total"]["bridgeScorePH"][89:]
+  dates = bridgeScoreData["total"]["datesMovingAveragePH"][89:]
+  ax.plot(dates, values, label="PH Score")
 
-  values2 = bridgeScoreData["overall"]["bridgeScore"][89:]
-  dates2 = bridgeScoreData["overall"]["datesMovingAveragePH"][89:]
-  ax.plot(dates2, values2, label="Overall")
+  values2 = bridgeScoreData["total"]["bridgeScoreGP"][89:]
+  dates2 = bridgeScoreData["total"]["datesMovingAveragePH"][89:]
+  ax.plot(dates2, values2, label="GP Score")
 
+  values3 = bridgeScoreData["total"]["bridgeScore"][89:]
+  dates3 = bridgeScoreData["total"]["datesMovingAveragePH"][89:]
+  ax.plot(dates3, values3, label="Bridge Score")
 
 
   # for param, data in bridgeScoreData.items():
-  #   if param != "total":
-  #     values = bridgeScoreData[param]["bridgeScore"][89:]
-  #     dates = bridgeScoreData[param]["datesMovingAveragePH"][89:]
-  #     ax.plot(dates, values, label=param)
+  #   values = bridgeScoreData[param]["bridgeScore"][89:]
+  #   dates = bridgeScoreData[param]["datesMovingAveragePH"][89:]
+  #   ax.plot(dates, values, label=param)
 
   ax.grid(True)
   ax.set_ylim(0, 105)

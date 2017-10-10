@@ -78,12 +78,14 @@ filecsv = 'Individual_performance_log_data.csv'
 # plog.graphBridgeScorePH(filecsv)
 
 
-# plog.tableBridgeScores(filecsv)
+# plog.calculateBridgeScore(filecsv)
+
+plog.tableBridgeScores(filecsv)
 # plog.graphBridgeScore(filecsv)
 
 
 #### data with form score and sleep quantity
-plog.loadGPscores_oneUser('GP_param_intValue_by_date.csv')
+# plog.loadGPscores_oneUser('GP_param_intValue_by_date.csv')
 
 
 
