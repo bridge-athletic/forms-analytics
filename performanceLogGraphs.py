@@ -1488,59 +1488,29 @@ def zScorePH20Points(filecsv, filecsvGP):
     meanPH = []
     stdPH = []
 
-    ## Get the 90th day for the boundary condition
-    day90 = (data["dates"][0] + datetime.timedelta(days = 90))
-
     for i,d in enumerate(data["dates"]):
-      
-      ## For each date, get the mean and std for the past 90 days
-      ninetyDaysAgo = (d - datetime.timedelta(days = 90))
-      ninetyDayData = []
-      
-      ## Go through dates again to find the values in past 90 days
-      for j, innerDate in enumerate(data["dates"]):
-        if ((innerDate <= d) and (innerDate > ninetyDaysAgo)):
+      temp20PointData = []
+       
+      ## Less than 20 data points so we need to add the general population
+      if i < 20:
+        temp20PointData = data["values"][0:i+1]
+        while (len(temp20PointData) < 20):
+          ## Fill with the general pop avg data point
+          temp20PointData.append(generalPopulationData[param]["mean"])
+      else:
+        temp20PointData = data["values"][i-19:i+1]
 
-          ## Add the value to the 90 day list
-          ninetyDayData.append(data["values"][j])
-
-
-      ## If we don't have 10 data points and we are in the first 90 days 
-      ## use the GP mean for this param for calculating mean and std
-      if ((len(ninetyDayData) < 10) and (d <= day90)):
-        i = 0
-        weightedGeneralPop = (10 - len(ninetyDayData))
-        while (i < weightedGeneralPop):
-          ## Add the general population mean to the list to calculate the mean and std
-          ninetyDayData.append(generalPopulationData[param]["mean"])
-          i += 1
-
-      ## If we don't have 10 data points and we past the first 90 days, 
-      ## go back to collect data in past until we have 10 data points
-      elif ((len(ninetyDayData) < 10) and (d > day90)):
-        daysBack = 1
-        while (len(ninetyDayData) < 10):
-          
-          ## Make sure we don't index before beginning of list
-          if (i - daysBack > 0):
-            ninetyDayData.append(data["values"][i - daysBack])
-            daysBack += 1
-          
-          ## Have to add the general population mean if not enough data
-          else:
-            ninetyDayData.append(generalPopulationData[param]["mean"])
-
-      ## Get the mean and standard deviation using data from past 90 days
-      meanPH.append(np.mean(ninetyDayData))
-      stdPH.append(np.std(ninetyDayData))
+      ## Get the mean and standard deviation using data from past 20 data points
+      meanPH.append(np.mean(temp20PointData))
+      stdPH.append(np.std(temp20PointData))
 
       if (param == 'sleepQuality'):
         print param
         print "General Pop mean: " + str(generalPopulationData[param]["mean"])
         print d
-        print ninetyDayData
-        print np.mean(ninetyDayData)
-        print np.std(ninetyDayData)
+        print temp20PointData
+        print np.mean(temp20PointData)
+        print np.std(temp20PointData)
         print
 
     individualAvgData[param] = {
@@ -1577,7 +1547,7 @@ def zScoreAllDataGP(filecsv, filecsvGP):
   ## Already have the PH data from this function
   # individualAvgData, generalPopulationData = zScorePH90Days(filecsv, filecsvGP)
   individualAvgData, generalPopulationData = zScorePH20Points(filecsv, filecsvGP)
-  
+
   # Add z-score for all data avg and std
   for param, data in individualAvgData.items():
 
