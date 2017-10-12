@@ -180,21 +180,21 @@ def loadScores_oneUser(filecsv):
       if (int(row[1]) == 492):
         individualPerformanceLogScores["fatigue"]["dates"].append(date)
         ## calculate score for fatigue out of 100
-        score = ((5 - int(row[3])) * 20)
+        score = ((6 - int(row[3])) * 20)
         individualPerformanceLogScores["fatigue"]["values"].append(score)
       
       ## soreness data; parameterId 493
       if (int(row[1]) == 493):
         individualPerformanceLogScores["soreness"]["dates"].append(date)
         ## calculate score for soreness
-        score = ((5 - int(row[3])) * 20)
+        score = ((6 - int(row[3])) * 20)
         individualPerformanceLogScores["soreness"]["values"].append(score)
       
       ## stress data; parameterId 494
       if (int(row[1]) == 494):
         individualPerformanceLogScores["stress"]["dates"].append(date)
         ## calculate score for sleepQuality
-        score = ((5 - int(row[3])) * 20)
+        score = ((6 - int(row[3])) * 20)
         individualPerformanceLogScores["stress"]["values"].append(score)
       
       ## sleepQuality data; parameterId 495
@@ -1248,13 +1248,13 @@ def loadGPscores_oneUser(GPdata):
 
       ## If param is fatigue, stress or soreness we subtract from 5 to get the score
       if param == 492:
-        generalPopulationData["fatigue"]["values"].append((5 - intValue) * 20)
+        generalPopulationData["fatigue"]["values"].append((6 - intValue) * 20)
       
       if param == 493:
-        generalPopulationData["soreness"]["values"].append((5 - intValue) * 20)
+        generalPopulationData["soreness"]["values"].append((6 - intValue) * 20)
 
       if param == 494:
-        generalPopulationData["stress"]["values"].append((5 - intValue) * 20)
+        generalPopulationData["stress"]["values"].append((6 - intValue) * 20)
 
       ## Other params just go to a 100 pt scale
       if param == 495:
@@ -1374,9 +1374,107 @@ def getTotalScorePerDate(dates, filecsv):
   return totalScoreData
 
 
+# #### FUNCITON: calculates the zscore for each parameter 
+# #### using the personal history (PH)
+# def zScorePH90Days(filecsv, filecsvGP):
+#   processedData = dataWithFormScore(filecsv)
+
+#   generalPopulationData = loadGPscores_oneUser(filecsvGP)
+  
+#   ## Initialize object to return with all data points
+#   individualAvgData = {}
+ 
+#   for param, data in processedData.items():
+
+#     ## Initialize the lists to hold personal history data
+#     meanPH = []
+#     stdPH = []
+
+#     ## Get the 90th day for the boundary condition
+#     day90 = (data["dates"][0] + datetime.timedelta(days = 90))
+
+#     for i,d in enumerate(data["dates"]):
+      
+#       ## For each date, get the mean and std for the past 90 days
+#       ninetyDaysAgo = (d - datetime.timedelta(days = 90))
+#       ninetyDayData = []
+      
+#       ## Go through dates again to find the values in past 90 days
+#       for j, innerDate in enumerate(data["dates"]):
+#         if ((innerDate <= d) and (innerDate > ninetyDaysAgo)):
+
+#           ## Add the value to the 90 day list
+#           ninetyDayData.append(data["values"][j])
+
+
+#       ## If we don't have 10 data points and we are in the first 90 days 
+#       ## use the GP mean for this param for calculating mean and std
+#       if ((len(ninetyDayData) < 10) and (d <= day90)):
+#         i = 0
+#         weightedGeneralPop = (10 - len(ninetyDayData))
+#         while (i < weightedGeneralPop):
+#           ## Add the general population mean to the list to calculate the mean and std
+#           ninetyDayData.append(generalPopulationData[param]["mean"])
+#           i += 1
+
+#       ## If we don't have 10 data points and we past the first 90 days, 
+#       ## go back to collect data in past until we have 10 data points
+#       elif ((len(ninetyDayData) < 10) and (d > day90)):
+#         daysBack = 1
+#         while (len(ninetyDayData) < 10):
+          
+#           ## Make sure we don't index before beginning of list
+#           if (i - daysBack > 0):
+#             ninetyDayData.append(data["values"][i - daysBack])
+#             daysBack += 1
+          
+#           ## Have to add the general population mean if not enough data
+#           else:
+#             ninetyDayData.append(generalPopulationData[param]["mean"])
+
+#       ## Get the mean and standard deviation using data from past 90 days
+#       meanPH.append(np.mean(ninetyDayData))
+#       stdPH.append(np.std(ninetyDayData))
+
+#       if (param == 'sleepQuality'):
+#         print param
+#         print "General Pop mean: " + str(generalPopulationData[param]["mean"])
+#         print d
+#         print ninetyDayData
+#         print np.mean(ninetyDayData)
+#         print np.std(ninetyDayData)
+#         print
+
+#     individualAvgData[param] = {
+#       "dates": data["dates"],
+#       "values": data["values"],
+#       "meanPH": meanPH,
+#       "stdPH": stdPH
+#     }
+
+#   # Add z-score for the 90 day avg and std
+#   for param, data in individualAvgData.items():
+    
+#     ## Initialize the z-score list 
+#     zscoreData = []
+
+#     for i, d in enumerate(data["dates"]):
+#       if data["stdPH"][i] == 0:
+#         zscoreData.append(0)
+#       else: 
+#         zscore = (data["values"][i] - data["meanPH"][i]) / data["stdPH"][i]
+#         zscoreData.append(zscore)
+
+#     ## Add z-score to the data in the object to return
+#     individualAvgData[param]["zscorePH"] = zscoreData
+
+#   ## Returns object of parameters with dates, score values, means, stds, and z-scores using the 90 day personal history
+#   return individualAvgData, generalPopulationData
+
+
 #### FUNCITON: calculates the zscore for each parameter 
-#### using the personal history (PH)
-def zScorePH90Days(filecsv, filecsvGP):
+#### using the personal history of the last 20 collected data points (PH)
+def zScorePH20Points(filecsv, filecsvGP):
   processedData = dataWithFormScore(filecsv)
 
   generalPopulationData = loadGPscores_oneUser(filecsvGP)
@@ -1390,8 +1488,10 @@ def zScorePH90Days(filecsv, filecsvGP):
     meanPH = []
     stdPH = []
 
+    ## Get the 90th day for the boundary condition
+    day90 = (data["dates"][0] + datetime.timedelta(days = 90))
 
-    for d in data["dates"]:
+    for i,d in enumerate(data["dates"]):
       
       ## For each date, get the mean and std for the past 90 days
       ninetyDaysAgo = (d - datetime.timedelta(days = 90))
@@ -1405,8 +1505,9 @@ def zScorePH90Days(filecsv, filecsvGP):
           ninetyDayData.append(data["values"][j])
 
 
-      ## If we don't have 10 data points, use the GP mean for this param for calculating mean and std
-      if len(ninetyDayData) < 10:
+      ## If we don't have 10 data points and we are in the first 90 days 
+      ## use the GP mean for this param for calculating mean and std
+      if ((len(ninetyDayData) < 10) and (d <= day90)):
         i = 0
         weightedGeneralPop = (10 - len(ninetyDayData))
         while (i < weightedGeneralPop):
@@ -1414,9 +1515,33 @@ def zScorePH90Days(filecsv, filecsvGP):
           ninetyDayData.append(generalPopulationData[param]["mean"])
           i += 1
 
+      ## If we don't have 10 data points and we past the first 90 days, 
+      ## go back to collect data in past until we have 10 data points
+      elif ((len(ninetyDayData) < 10) and (d > day90)):
+        daysBack = 1
+        while (len(ninetyDayData) < 10):
+          
+          ## Make sure we don't index before beginning of list
+          if (i - daysBack > 0):
+            ninetyDayData.append(data["values"][i - daysBack])
+            daysBack += 1
+          
+          ## Have to add the general population mean if not enough data
+          else:
+            ninetyDayData.append(generalPopulationData[param]["mean"])
+
       ## Get the mean and standard deviation using data from past 90 days
       meanPH.append(np.mean(ninetyDayData))
       stdPH.append(np.std(ninetyDayData))
+
+      if (param == 'sleepQuality'):
+        print param
+        print "General Pop mean: " + str(generalPopulationData[param]["mean"])
+        print d
+        print ninetyDayData
+        print np.mean(ninetyDayData)
+        print np.std(ninetyDayData)
+        print
 
     individualAvgData[param] = {
       "dates": data["dates"],
@@ -1450,8 +1575,9 @@ def zScorePH90Days(filecsv, filecsvGP):
 def zScoreAllDataGP(filecsv, filecsvGP):
 
   ## Already have the PH data from this function
-  individualAvgData, generalPopulationData = zScorePH90Days(filecsv, filecsvGP)
-
+  # individualAvgData, generalPopulationData = zScorePH90Days(filecsv, filecsvGP)
+  individualAvgData, generalPopulationData = zScorePH20Points(filecsv, filecsvGP)
+  
   # Add z-score for all data avg and std
   for param, data in individualAvgData.items():
 
@@ -1655,7 +1781,7 @@ def tableBridgeScores(filecsv, filecsvGP):
     for i, d in enumerate(recordedDates):
       computedData[param].append(data["bridgeScore"][i])
 
-  with open('8158_bridge_score_data.csv', 'wb') as bridgeScoreTable:
+  with open('8117_bridge_score_data.csv', 'wb') as bridgeScoreTable:
     writer = csv.writer(bridgeScoreTable)
     dates = copy.deepcopy(recordedDates)
     
