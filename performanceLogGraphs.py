@@ -38,97 +38,99 @@ import plotly.figure_factory as ff
 
 
 #### FUNCTION: takes a csv file with performance log data for one user
-#### NOTE: this function organizes raw data 
-def loadData_oneUser(filecsv):
+#### NOTE: this function organizes raw data and does not convert to scores
+#### NOTE: not in use for calculating the bridge score
+# def loadData_oneUser(filecsv):
 
-  ## empty dictionary to be filled with performance log data
-  individualPerformanceLogData = {
-    "fatigue": {
-      "dates": [],
-      "values": []
-    },
-    "soreness": {
-      "dates": [],
-      "values": []
-    },
-    "stress": {
-      "dates": [],
-      "values": []
-    },
-    "sleepQuality": {
-      "dates": [],
-      "values": []
-    },
-    "sleepQuantity": {
-      "dates": [],
-      "values": []
-    },
-    "nutrition": {
-      "dates": [],
-      "values": []
-    },
-    "hydration": {
-      "dates": [],
-      "values": []
-    },
-    "overall": {
-      "dates": [],
-      "values": []
-    }
-  }
+#   ## empty dictionary to be filled with performance log data
+#   individualPerformanceLogData = {
+#     "fatigue": {
+#       "dates": [],
+#       "values": []
+#     },
+#     "soreness": {
+#       "dates": [],
+#       "values": []
+#     },
+#     "stress": {
+#       "dates": [],
+#       "values": []
+#     },
+#     "sleepQuality": {
+#       "dates": [],
+#       "values": []
+#     },
+#     "sleepQuantity": {
+#       "dates": [],
+#       "values": []
+#     },
+#     "nutrition": {
+#       "dates": [],
+#       "values": []
+#     },
+#     "hydration": {
+#       "dates": [],
+#       "values": []
+#     },
+#     "overall": {
+#       "dates": [],
+#       "values": []
+#     }
+#   }
 
-  with open(filecsv) as performanceLogData:
-    csvReader = csv.reader(performanceLogData)
+#   with open(filecsv) as performanceLogData:
+#     csvReader = csv.reader(performanceLogData)
 
-    for row in csvReader:
-      ## convert date to YYYY-MM-DD
-      date = datetime.date.fromtimestamp(int(row[2]))
+#     for row in csvReader:
+#       ## convert date to YYYY-MM-DD
+#       date = datetime.date.fromtimestamp(int(row[2]))
       
-      ## fatigue data; parameterId 492
-      if (int(row[1]) == 492):
-        individualPerformanceLogData["fatigue"]["dates"].append(date)
-        individualPerformanceLogData["fatigue"]["values"].append(int(row[3]))
+#       ## fatigue data; parameterId 492
+#       if (int(row[1]) == 492):
+#         individualPerformanceLogData["fatigue"]["dates"].append(date)
+#         individualPerformanceLogData["fatigue"]["values"].append(int(row[3]))
       
-      ## soreness data; parameterId 493
-      if (int(row[1]) == 493):
-        individualPerformanceLogData["soreness"]["dates"].append(date)
-        individualPerformanceLogData["soreness"]["values"].append(int(row[3]))
+#       ## soreness data; parameterId 493
+#       if (int(row[1]) == 493):
+#         individualPerformanceLogData["soreness"]["dates"].append(date)
+#         individualPerformanceLogData["soreness"]["values"].append(int(row[3]))
       
-      ## stress data; parameterId 494
-      if (int(row[1]) == 494):
-        individualPerformanceLogData["stress"]["dates"].append(date)
-        individualPerformanceLogData["stress"]["values"].append(int(row[3]))
+#       ## stress data; parameterId 494
+#       if (int(row[1]) == 494):
+#         individualPerformanceLogData["stress"]["dates"].append(date)
+#         individualPerformanceLogData["stress"]["values"].append(int(row[3]))
       
-      ## sleepQuality data; parameterId 495
-      if (int(row[1]) == 495):
-        individualPerformanceLogData["sleepQuality"]["dates"].append(date)
-        individualPerformanceLogData["sleepQuality"]["values"].append(int(row[3]))
+#       ## sleepQuality data; parameterId 495
+#       if (int(row[1]) == 495):
+#         individualPerformanceLogData["sleepQuality"]["dates"].append(date)
+#         individualPerformanceLogData["sleepQuality"]["values"].append(int(row[3]))
 
-      ## sleepQuantity data; parameterId 614
-      if (int(row[1]) == 495):
-        individualPerformanceLogData["sleepQuantity"]["dates"].append(date)
-        individualPerformanceLogData["sleepQuantity"]["values"].append((int(row[3]))/1000.0)
+#       ## sleepQuantity data; parameterId 614
+#       if (int(row[1]) == 495):
+#         individualPerformanceLogData["sleepQuantity"]["dates"].append(date)
+#         individualPerformanceLogData["sleepQuantity"]["values"].append((int(row[3]))/1000.0)
       
-      ## nutrition data; parameterId 496
-      if (int(row[1]) == 496):
-        individualPerformanceLogData["nutrition"]["dates"].append(date)
-        individualPerformanceLogData["nutrition"]["values"].append(int(row[3]))
+#       ## nutrition data; parameterId 496
+#       if (int(row[1]) == 496):
+#         individualPerformanceLogData["nutrition"]["dates"].append(date)
+#         individualPerformanceLogData["nutrition"]["values"].append(int(row[3]))
       
-      ## hydration data; parameterId 497
-      if (int(row[1]) == 497):
-        individualPerformanceLogData["hydration"]["dates"].append(date)
-        individualPerformanceLogData["hydration"]["values"].append(int(row[3]))
+#       ## hydration data; parameterId 497
+#       if (int(row[1]) == 497):
+#         individualPerformanceLogData["hydration"]["dates"].append(date)
+#         individualPerformanceLogData["hydration"]["values"].append(int(row[3]))
       
-      ## overall data; parameterId 498
-      if (int(row[1]) == 498):
-        individualPerformanceLogData["overall"]["dates"].append(date)
-        individualPerformanceLogData["overall"]["values"].append(int(row[3]))
+#       ## overall data; parameterId 498
+#       if (int(row[1]) == 498):
+#         individualPerformanceLogData["overall"]["dates"].append(date)
+#         individualPerformanceLogData["overall"]["values"].append(int(row[3]))
 
-  return individualPerformanceLogData
+#   return individualPerformanceLogData
 
 
 #### FUNCTION: takes a csv file with performance log data for one user 
-#### NOTE: this function organizes question scores
+#### NOTE: this function organizes question scores 
+#### NOTE: used to load in data for the Bridge Score
 def loadScores_oneUser(filecsv):
 
   ## empty dictionary to be filled with performance log data
@@ -177,7 +179,7 @@ def loadScores_oneUser(filecsv):
       ## fatigue data; parameterId 492
       if (int(row[1]) == 492):
         individualPerformanceLogScores["fatigue"]["dates"].append(date)
-        ## calculate score for fatigue
+        ## calculate score for fatigue out of 100
         score = ((5 - int(row[3])) * 20)
         individualPerformanceLogScores["fatigue"]["values"].append(score)
       
@@ -286,20 +288,27 @@ def dataPostMeanProcessing_oneUser(filecsv):
 #### FUNCTION: calculates form score out of 100 pt scale
 #### Includes hours of sleep
 def dataWithFormScore(filecsv):
+  
   processedData = dataPostMeanProcessing_oneUser(filecsv)
+  
+  ## Initialize the total arrays
   processedData["total"] = {
     "dates": [],
     "values": []
   }
 
+  ## Initalize comprehensive list to hold dates
   allDates = []
-  # build array with all dates from each param list
+  
+  ## build comprehensive array with all dates from each param list
   for param, data in processedData.items():
     allDates += data['dates']
 
   uniqueAllDates = sorted(list(set(allDates)))
+  
   for uniqueDate in uniqueAllDates:
-    # Initialize to hold the values for each date
+    
+    ## Initialize to hold the values for each date
     sumValue = 0
     numParams = 0
     
@@ -340,330 +349,486 @@ def dataWithFormScore(filecsv):
     maxPts = numParams*100
     processedData["total"]["values"].append((sumValue*100)/maxPts)
 
-  # print processedData["total"]
   return processedData
 
 
-#### FUNCTION: calculates and shows number of questions answered for each form submission
-def questionsAnsweredPerSubmission(filecsv):
-  # go through all dates from total score
-  # add one if the date exists in each parameter
+# #### FUNCTION: calculates and shows number of questions answered for each form submission
+# def questionsAnsweredPerSubmission(filecsv):
+#   # go through all dates from total score
+#   # add one if the date exists in each parameter
 
-  processedData = dataWithFormScore(filecsv)
+#   processedData = dataWithFormScore(filecsv)
 
-  ## Already went through and got all dates that have one or more response recorded
-  dates = processedData["total"]["dates"]
-  numResponses = []
+#   ## Already went through and got all dates that have one or more response recorded
+#   dates = processedData["total"]["dates"]
+#   numResponses = []
 
-  for date in dates:
-    answers = 0
-    for param, data in processedData.items(): 
-      if param != "total":
-        if date in data["dates"]:
-          answers += 1
+#   for date in dates:
+#     answers = 0
+#     for param, data in processedData.items(): 
+#       if param != "total":
+#         if date in data["dates"]:
+#           answers += 1
 
-    numResponses.append(answers)
+#     numResponses.append(answers)
 
-  fig, ax = plt.subplots()
-  graphTitle = "Number of Questions Answered per Form Submission (max. 8)"
-  ax.plot(dates, numResponses, label='Num. Questions Answered')
+#   fig, ax = plt.subplots()
+#   graphTitle = "Number of Questions Answered per Form Submission (max. 8)"
+#   ax.plot(dates, numResponses, label='Num. Questions Answered')
 
-  ax.grid(True)
-  ax.set_ylim(0, 8.5)
-  ax.format_xdata = mdates.DateFormatter('%Y-%m-%d')
-  fig.autofmt_xdate()
-  ax.legend(loc=3)
+#   ax.grid(True)
+#   ax.set_ylim(0, 8.5)
+#   ax.format_xdata = mdates.DateFormatter('%Y-%m-%d')
+#   fig.autofmt_xdate()
+#   ax.legend(loc=3)
 
-  ## set axes and title
-  ax.set_xlabel('Dates')
-  ax.set_ylabel('Num. Questions Answered')
-  ax.set_title(graphTitle)
+#   ## set axes and title
+#   ax.set_xlabel('Dates')
+#   ax.set_ylabel('Num. Questions Answered')
+#   ax.set_title(graphTitle)
 
-  plt.savefig("Responses_per_submission.png")
-  plt.show()
+#   plt.savefig("Responses_per_submission.png")
+#   plt.show()
 
 
-#### FUNCTION: calculates 7 PT moving average
-def sevenPointMovingAverage(filecsv):
-  processedData = dataWithFormScore(filecsv)
+# #### FUNCTION: calculates 7 PT moving average
+# def sevenPointMovingAverage(filecsv):
+#   processedData = dataWithFormScore(filecsv)
   
-  individualAvgData = {}
+#   individualAvgData = {}
 
-  for param, data in processedData.items():
+#   for param, data in processedData.items():
 
-    ## Initializing list to convolve with question scores
-    n = [1,1,1,1,1,1,1]
+#     ## Initializing list to convolve with question scores
+#     n = [1,1,1,1,1,1,1]
 
-    ## Get moving sum
-    preAverages = np.convolve(data["values"], n, mode='valid')
+#     ## Get moving sum
+#     preAverages = np.convolve(data["values"], n, mode='valid')
 
-    ## Divide all items by 7 to get moving average
-    averages = [x/7 for x in preAverages]
+#     ## Divide all items by 7 to get moving average
+#     averages = [x/7 for x in preAverages]
 
-    ## Additional calculations needed if switch convolve mode to full
-    # averages = [x/(n+1) if n+1 < 7 else x/7 for n, x in enumerate(preAverages)]
+#     ## Additional calculations needed if switch convolve mode to full
+#     # averages = [x/(n+1) if n+1 < 7 else x/7 for n, x in enumerate(preAverages)]
 
-    individualAvgData[param] = {
-      ## Remove the first 6 dates since we are using convolve mode = valid
-      "dates": data["dates"][6:],
-      "averages": averages
-    }
+#     individualAvgData[param] = {
+#       ## Remove the first 6 dates since we are using convolve mode = valid
+#       "dates": data["dates"][6:],
+#       "averages": averages
+#     }
 
-  return individualAvgData, processedData
+#   return individualAvgData, processedData
 
 
-#### FUNCTION: calculates 7 PT EXPONENTIAL moving average
-def sevenPointExponentialMovingAverage(filecsv):
-  processedData = dataWithFormScore(filecsv)
+# #### FUNCTION: calculates 7 PT EXPONENTIAL moving average
+# def sevenPointExponentialMovingAverage(filecsv):
+#   processedData = dataWithFormScore(filecsv)
   
-  individualAvgData = {}
+#   individualAvgData = {}
 
-  for param, data in processedData.items():
+#   for param, data in processedData.items():
 
-    ## Initializing list to convolve with question scores
-    ## the np.convolve function will invert this list
-    n = [1,0.5,0.25,0.125,0.0625,0.03125,0.015625]
+#     ## Initializing list to convolve with question scores
+#     ## the np.convolve function will invert this list
+#     n = [1,0.5,0.25,0.125,0.0625,0.03125,0.015625]
 
-    ## Get moving sum
-    preAverages = np.convolve(data["values"], n, mode='valid')
+#     ## Get moving sum
+#     preAverages = np.convolve(data["values"], n, mode='valid')
 
-    ## Divide all items by 7 to get moving average
-    averages = [x/(sum(n)) for x in preAverages]
+#     ## Divide all items by 7 to get moving average
+#     averages = [x/(sum(n)) for x in preAverages]
 
-    individualAvgData[param] = {
-      ## Remove the first 6 dates since we are using convolve mode = valid
-      "dates": data["dates"][6:],
-      "averages": averages
-    }
+#     individualAvgData[param] = {
+#       ## Remove the first 6 dates since we are using convolve mode = valid
+#       "dates": data["dates"][6:],
+#       "averages": averages
+#     }
 
-  return individualAvgData, processedData
+#   return individualAvgData, processedData
 
 
-#### FUNCTION: calculates 7 PT WEIGHTED moving average in slightly different way
-def sevenPointWeightedMovingAverage(filecsv):
-  ## Get the simple 7 point moving average
-  avgData, processedData = sevenPointMovingAverage(filecsv)
+# #### FUNCTION: calculates 7 PT WEIGHTED moving average in slightly different way
+# def sevenPointWeightedMovingAverage(filecsv):
+#   ## Get the simple 7 point moving average
+#   avgData, processedData = sevenPointMovingAverage(filecsv)
 
-  individualAvgData = {}
+#   individualAvgData = {}
  
-  ## Want a 7 point moving average
-  n = 7
+#   ## Want a 7 point moving average
+#   n = 7
   
-  ## Get multiplier, force the float
-  k = 2.0/(n+1)
+#   ## Get multiplier, force the float
+#   k = 2.0/(n+1)
 
-  for param, data in processedData.items():
-    firstMA = avgData[param]["averages"][0]
-    expMA = []
+#   for param, data in processedData.items():
+#     firstMA = avgData[param]["averages"][0]
+#     expMA = []
 
-    for i, d in enumerate(data["values"]):
-      ## Initialize exponential moving average (ema)
-      ema = 0
+#     for i, d in enumerate(data["values"]):
+#       ## Initialize exponential moving average (ema)
+#       ema = 0
 
-      ## Use the simple moving average for first data point
-      if i == 0:
-        ema = ((d - firstMA) * k) + firstMA
+#       ## Use the simple moving average for first data point
+#       if i == 0:
+#         ema = ((d - firstMA) * k) + firstMA
 
-      ## Otherwise use EMA = ((Current price - Previous EMA) * k) + Previous EMA
-      else:
-        ema = ((d - expMA[-1]) * k) + expMA[-1]
+#       ## Otherwise use EMA = ((Current price - Previous EMA) * k) + Previous EMA
+#       else:
+#         ema = ((d - expMA[-1]) * k) + expMA[-1]
      
-      expMA.append(ema)
+#       expMA.append(ema)
 
-    individualAvgData[param] = {
-      "dates": data["dates"],
-      "averages": expMA
-    }
+#     individualAvgData[param] = {
+#       "dates": data["dates"],
+#       "averages": expMA
+#     }
 
-  return individualAvgData, processedData
+#   return individualAvgData, processedData
 
 
-#### FUNCTION: calculates 7 DAY moving average
-def sevenDayMovingAverage(filecsv):
-  processedData = dataWithFormScore(filecsv)
+# #### FUNCTION: calculates 7 DAY moving average
+# def sevenDayMovingAverage(filecsv):
+#   processedData = dataWithFormScore(filecsv)
 
-  individualAvgData = {}
+#   individualAvgData = {}
 
-  ## list is already sorted, so take the first and last date of ["total"]["dates"]
-  startDate = processedData["total"]["dates"][0]
-  endDate = processedData["total"]["dates"][-1]
+#   ## list is already sorted, so take the first and last date of ["total"]["dates"]
+#   startDate = processedData["total"]["dates"][0]
+#   endDate = processedData["total"]["dates"][-1]
 
-  ## Get every date between start and end date
-  allDates = [startDate + datetime.timedelta(days = x) for x in range((endDate - startDate).days + 1)]
+#   ## Get every date between start and end date
+#   allDates = [startDate + datetime.timedelta(days = x) for x in range((endDate - startDate).days + 1)]
 
-  for param, data in processedData.items():
-    allData = []
+#   for param, data in processedData.items():
+#     allData = []
 
-    ## Get a list of data with -1 for any value missing user data
-    for date in allDates:
-      if (date in data["dates"]):
-        ## If date exists in the list, use the recorded data
-        idx = data["dates"].index(date)
-        allData.append(data["values"][idx])
-      else:
-        ## Put -1 as filler to filter out later
-        allData.append(-1)
+#     ## Get a list of data with -1 for any value missing user data
+#     for date in allDates:
+#       if (date in data["dates"]):
+#         ## If date exists in the list, use the recorded data
+#         idx = data["dates"].index(date)
+#         allData.append(data["values"][idx])
+#       else:
+#         ## Put -1 as filler to filter out later
+#         allData.append(-1)
 
-    n = [1,1,1,1,1,1,1]
-    preAverages = np.convolve(allData, n, mode='valid')
+#     n = [1,1,1,1,1,1,1]
+#     preAverages = np.convolve(allData, n, mode='valid')
 
-    movingAverage = []
-    ## Go through and find out what the denominator should be
-    for i, x in enumerate(preAverages):
+#     movingAverage = []
+#     ## Go through and find out what the denominator should be
+#     for i, x in enumerate(preAverages):
 
-      ## Get the seven values that contributed to this data point
-      tempValues = allData[i:(i+7)]
+#       ## Get the seven values that contributed to this data point
+#       tempValues = allData[i:(i+7)]
 
-      ## Find out how many should be filtered out
-      filtered = tempValues.count(-1)
-      dataPoints = (7 - filtered)
+#       ## Find out how many should be filtered out
+#       filtered = tempValues.count(-1)
+#       dataPoints = (7 - filtered)
 
-      if dataPoints == 0:
-        ## If there were no data points in the seven days, take the average from the previous day
-        movingAverage.append(movingAverage[-1])
-      else:
+#       if dataPoints == 0:
+#         ## If there were no data points in the seven days, take the average from the previous day
+#         movingAverage.append(movingAverage[-1])
+#       else:
         
-        ## Add sum / actual number of data points that contributed
-        movingAverage.append((x+filtered)/dataPoints)
+#         ## Add sum / actual number of data points that contributed
+#         movingAverage.append((x+filtered)/dataPoints)
 
-    individualAvgData[param] = {
-      "dates": allDates[6:],
-      "averages": movingAverage
-    }
+#     individualAvgData[param] = {
+#       "dates": allDates[6:],
+#       "averages": movingAverage
+#     }
 
-  return individualAvgData, processedData
+#   return individualAvgData, processedData
 
 
-#### FUNCTION: calculates 7 DAY EXPONENTIAL // WEIGHTED moving average
-def sevenDayExponentialMovingAverage(filecsv):
-  processedData = dataWithFormScore(filecsv)
-  individualAvgData = {}
+# #### FUNCTION: calculates 7 DAY EXPONENTIAL // WEIGHTED moving average
+# def sevenDayExponentialMovingAverage(filecsv):
+#   processedData = dataWithFormScore(filecsv)
+#   individualAvgData = {}
  
-  ## list is already sorted, so take the first and last date of ["total"]["dates"]
-  startDate = processedData["total"]["dates"][0]
-  endDate = processedData["total"]["dates"][-1]
+#   ## list is already sorted, so take the first and last date of ["total"]["dates"]
+#   startDate = processedData["total"]["dates"][0]
+#   endDate = processedData["total"]["dates"][-1]
 
-  ## Get every date between start and end date
-  allDates = [startDate + datetime.timedelta(days = x) for x in range((endDate - startDate).days + 1)]
+#   ## Get every date between start and end date
+#   allDates = [startDate + datetime.timedelta(days = x) for x in range((endDate - startDate).days + 1)]
 
-  for param, data in processedData.items():
-    allData = []
-    expMA = []
+#   for param, data in processedData.items():
+#     allData = []
+#     expMA = []
 
-    ## Fill allData -1 for any value missing user data
-    for date in allDates:
-      if (date in data["dates"]):
-        ## If date exists in the list, use the recorded data
-        idx = data["dates"].index(date)
-        allData.append(data["values"][idx])
-      else:
-        ## Put -1 as filler to filter out later
-        allData.append(-1)
+#     ## Fill allData -1 for any value missing user data
+#     for date in allDates:
+#       if (date in data["dates"]):
+#         ## If date exists in the list, use the recorded data
+#         idx = data["dates"].index(date)
+#         allData.append(data["values"][idx])
+#       else:
+#         ## Put -1 as filler to filter out later
+#         allData.append(-1)
 
 
-    ### Exponential
-    # n = [0.015625, 0.03125, 0.0625, 0.125, 0.25, 0.5, 1]
+#     ### Exponential
+#     # n = [0.015625, 0.03125, 0.0625, 0.125, 0.25, 0.5, 1]
 
-    ## Weighted A
-    n = [0.1429, 0.1667, 0.2, 0.25, 0.3333, 0.5, 1]
+#     ## Weighted A
+#     n = [0.1429, 0.1667, 0.2, 0.25, 0.3333, 0.5, 1]
 
-    ## Weighted B
-    # n = [0.25, 0.2857, 0.3333, 0.4, 0.5, 0.6667, 1]
+#     ## Weighted B
+#     # n = [0.25, 0.2857, 0.3333, 0.4, 0.5, 0.6667, 1]
 
-    ## Starting at the 7th number
-    i = 6
-    while i < len(allData):
-      tempValues = allData[i-6:i+1]
-      ema = 0.0
-      dem = 0.0
+#     ## Starting at the 7th number
+#     i = 6
+#     while i < len(allData):
+#       tempValues = allData[i-6:i+1]
+#       ema = 0.0
+#       dem = 0.0
       
-      ## Go though list and calculate the EMA for the selected seven days
-      for j, v in enumerate(tempValues):
-        if v != -1:
-          ema += (v * n[j])
-          dem += n[j]
+#       ## Go though list and calculate the EMA for the selected seven days
+#       for j, v in enumerate(tempValues):
+#         if v != -1:
+#           ema += (v * n[j])
+#           dem += n[j]
       
-      if ema == 0:
-        # expMA.append(None)
-        expMA.append(expMA[-1])
-      else:
-        expMA.append(ema/dem)
+#       if ema == 0:
+#         # expMA.append(None)
+#         expMA.append(expMA[-1])
+#       else:
+#         expMA.append(ema/dem)
       
-      ## Go to next 7 days
-      i += 1
+#       ## Go to next 7 days
+#       i += 1
 
-    individualAvgData[param] = {
-      "dates": allDates[6:],
-      "averages": expMA
-    }
+#     individualAvgData[param] = {
+#       "dates": allDates[6:],
+#       "averages": expMA
+#     }
 
-  return individualAvgData, processedData
+#   return individualAvgData, processedData
 
 
-#### FUNCTION: calculates 28 DAY WEIGHTED moving average
-def twentyEightDayExponentialMovingAverage(filecsv):
-  processedData = dataWithFormScore(filecsv)
-  individualAvgData = {}
+# #### FUNCTION: calculates 28 DAY WEIGHTED moving average
+# def twentyEightDayExponentialMovingAverage(filecsv):
+#   processedData = dataWithFormScore(filecsv)
+#   individualAvgData = {}
  
-  ## list is already sorted, so take the first and last date of ["total"]["dates"]
-  startDate = processedData["total"]["dates"][0]
-  endDate = processedData["total"]["dates"][-1]
+#   ## list is already sorted, so take the first and last date of ["total"]["dates"]
+#   startDate = processedData["total"]["dates"][0]
+#   endDate = processedData["total"]["dates"][-1]
 
-  ## Get every date between start and end date
-  allDates = [startDate + datetime.timedelta(days = x) for x in range((endDate - startDate).days + 1)]
+#   ## Get every date between start and end date
+#   allDates = [startDate + datetime.timedelta(days = x) for x in range((endDate - startDate).days + 1)]
 
-  for param, data in processedData.items():
-    allData = []
-    expMA = []
+#   for param, data in processedData.items():
+#     allData = []
+#     expMA = []
 
-    ## Fill allData -1 for any value missing user data
-    for date in allDates:
-      if (date in data["dates"]):
-        ## If date exists in the list, use the recorded data
-        idx = data["dates"].index(date)
-        allData.append(data["values"][idx])
-      else:
-        ## Put -1 as filler to filter out later
-        allData.append(-1)
+#     ## Fill allData -1 for any value missing user data
+#     for date in allDates:
+#       if (date in data["dates"]):
+#         ## If date exists in the list, use the recorded data
+#         idx = data["dates"].index(date)
+#         allData.append(data["values"][idx])
+#       else:
+#         ## Put -1 as filler to filter out later
+#         allData.append(-1)
 
 
-    ### Exponential
-    # n = [ 0.015625, 0.03125, 0.0625, 0.125, 0.25, 0.5, 1]
+#     ### Exponential
+#     # n = [ 0.015625, 0.03125, 0.0625, 0.125, 0.25, 0.5, 1]
 
-    ## Weighted A // 1/2, 1/3...1/14
-    # n = [0.0714, 0.0714, 0.0714, 0.0714, 0.0714, 0.0714, 0.0714, 0.0714, 0.0714, 0.0714, 0.0714, 0.0714, 0.0714, 0.0714, 0.0714, 0.0769, 0.0833, 0.0909, 0.1, 0.1111, 0.125, 0.1429, 0.1667, 0.2, 0.25, 0.3333, 0.5, 1]
+#     ## Weighted A // 1/2, 1/3...1/14
+#     # n = [0.0714, 0.0714, 0.0714, 0.0714, 0.0714, 0.0714, 0.0714, 0.0714, 0.0714, 0.0714, 0.0714, 0.0714, 0.0714, 0.0714, 0.0714, 0.0769, 0.0833, 0.0909, 0.1, 0.1111, 0.125, 0.1429, 0.1667, 0.2, 0.25, 0.3333, 0.5, 1]
 
-    ## Weighted B // 2/2, 2/3, 2/4...2/14
-    n = [0.1429, 0.1429, 0.1429, 0.1429, 0.1429, 0.1429, 0.1429, 0.1429, 0.1429, 0.1429, 0.1429, 0.1429, 0.1429, 0.1429, 0.1429, 0.1429, 0.1538, 0.1667, 0.1818, 0.2, 0.2222, 0.25, 0.2857, 0.3333, 0.4, 0.5, 0.6667, 1]
+#     ## Weighted B // 2/2, 2/3, 2/4...2/14
+#     n = [0.1429, 0.1429, 0.1429, 0.1429, 0.1429, 0.1429, 0.1429, 0.1429, 0.1429, 0.1429, 0.1429, 0.1429, 0.1429, 0.1429, 0.1429, 0.1429, 0.1538, 0.1667, 0.1818, 0.2, 0.2222, 0.25, 0.2857, 0.3333, 0.4, 0.5, 0.6667, 1]
 
-    ## Starting at the 7th number
-    i = 27
-    while i < len(allData):
-      tempValues = allData[i-27:i+1]
-      ema = 0.0
-      dem = 0.0
+#     ## Starting at the 7th number
+#     i = 27
+#     while i < len(allData):
+#       tempValues = allData[i-27:i+1]
+#       ema = 0.0
+#       dem = 0.0
       
-      ## Go though list and calculate the EMA for the selected seven days
-      for j, v in enumerate(tempValues):
-        if v != -1:
-          ema += (v * n[j])
-          dem += n[j]
+#       ## Go though list and calculate the EMA for the selected seven days
+#       for j, v in enumerate(tempValues):
+#         if v != -1:
+#           ema += (v * n[j])
+#           dem += n[j]
       
-      if ema == 0:
-        # expMA.append(None)
-        expMA.append(expMA[-1])
-      else:
-        expMA.append(ema/dem)
+#       if ema == 0:
+#         # expMA.append(None)
+#         expMA.append(expMA[-1])
+#       else:
+#         expMA.append(ema/dem)
       
-      ## Go to next 7 days
-      i += 1
+#       ## Go to next 7 days
+#       i += 1
 
-    individualAvgData[param] = {
-      "dates": allDates[27:],
-      "averages": expMA
-    }
+#     individualAvgData[param] = {
+#       "dates": allDates[27:],
+#       "averages": expMA
+#     }
 
-  return individualAvgData, processedData
+#   return individualAvgData, processedData
+
+
+# #### FUNCTION: calculates 7 DAY WEIGHTED moving average
+# def sevenDayWeightedlMovingAverage(filecsv):
+#   processedData = dataWithFormScore(filecsv)
+#   individualAvgData = {}
+ 
+#   ## list is already sorted, so take the first and last date of ["total"]["dates"]
+#   startDate = processedData["total"]["dates"][0]
+#   endDate = processedData["total"]["dates"][-1]
+
+#   ## Get every date between start and end date
+#   allDates = [startDate + datetime.timedelta(days = x) for x in range((endDate - startDate).days + 1)]
+
+#   for param, data in processedData.items():
+#     allData = []
+#     expMA = []
+
+#     ## Fill allData -1 for any value missing user data
+#     for date in allDates:
+#       if (date in data["dates"]):
+#         ## If date exists in the list, use the recorded data
+#         idx = data["dates"].index(date)
+#         allData.append(data["values"][idx])
+#       else:
+#         ## Put -1 as filler to filter out later
+#         allData.append(-1)
+
+
+#     ### Exponential
+#     # n = [0.015625, 0.03125, 0.0625, 0.125, 0.25, 0.5, 1]
+
+#     ## Weighted A
+#     # n = [0.1429, 0.1667, 0.2, 0.25, 0.3333, 0.5, 1]
+
+#     ## Weighted B
+#     n = [0.25, 0.2857, 0.3333, 0.4, 0.5, 0.6667, 1]
+
+#     ## Starting at the 7th number
+#     i = 6
+#     while i < len(allData):
+#       tempValues = allData[i-6:i+1]
+#       ema = 0.0
+#       dem = 0.0
+      
+#       ## Go though list and calculate the EMA for the selected seven days
+#       for j, v in enumerate(tempValues):
+#         if v != -1:
+#           ema += (v * n[j])
+#           dem += n[j]
+      
+#       if ema == 0:
+#         # expMA.append(None)
+#         expMA.append(expMA[-1])
+#       else:
+#         expMA.append(ema/dem)
+      
+#       ## Go to next 7 days
+#       i += 1
+
+#     individualAvgData[param] = {
+#       "dates": allDates[6:],
+#       "averages": expMA
+#     }
+
+#   return individualAvgData, processedData
+
+
+# #### FUNCTION: calculates 7 DAY WEIGHTED moving average WITH Z-SCORE
+# def sevenDayWeightedMovingAverageWithZScore(filecsv):
+#   processedData, individualData = zScoreAllData(filecsv)
+#   individualAvgData = {}
+ 
+#   ## list is already sorted, so take the first and last date of ["total"]["dates"]
+#   startDate = processedData["total"]["dates"][0]
+#   endDate = processedData["total"]["dates"][-1]
+
+#   ## Get every date between start and end date
+#   allDates = [startDate + datetime.timedelta(days = x) for x in range((endDate - startDate).days + 1)]
+
+#   for param, data in processedData.items():
+#     ## make two lists, one for the data in past 90 days and other for all data collected
+#     allData = []
+#     ninetyData = []
+    
+#     ## Initialize arrays for the moving average for each set of data
+#     maAll = []
+#     ma90 = []
+
+#     ## Fill allData -1 for any value missing user data
+#     for date in allDates:
+#       if (date in data["dates"]):
+#         ## If date exists in the list, use the recorded data
+#         idx = data["dates"].index(date)
+#         allData.append(data["zscoreAll"][idx])
+#         ninetyData.append(data["zscore90"][idx])
+#       else:
+#         ## Put -1 as filler to filter out later
+#         allData.append(-1)
+#         ninetyData.append(-1)
+
+
+#     ### Exponential
+#     # n = [0.015625, 0.03125, 0.0625, 0.125, 0.25, 0.5, 1]
+
+#     ## Weighted A
+#     # n = [0.1429, 0.1667, 0.2, 0.25, 0.3333, 0.5, 1]
+
+#     ## Weighted B
+#     n = [0.25, 0.2857, 0.3333, 0.4, 0.5, 0.6667, 1]
+
+#     ## Starting at the 7th number
+#     i = 6
+#     while i < len(allData):
+#       tempValuesAll = allData[i-6:i+1]
+#       emaAll = 0.0
+#       demAll = 0.0
+      
+#       ## First go though list and calculate the moving average for the selected seven days for all data
+#       for j, v in enumerate(tempValuesAll):
+#         if v != -1:
+#           emaAll += (v * n[j])
+#           demAll += n[j]
+      
+#       if emaAll == 0:
+#         # maAll.append(None)
+#         maAll.append(maAll[-1])
+#       else:
+#         maAll.append(emaAll/demAll)
+      
+#       tempValues90 = ninetyData[i-6:i+1]
+#       ema90 = 0.0
+#       dem90 = 0.0
+
+#       ## Then go though list and calculate the moving average for the selected seven days for the 90 day data
+#       for j, v in enumerate(tempValues90):
+#         if v != -1:
+#           ema90 += (v * n[j])
+#           dem90 += n[j]
+      
+#       if ema90 == 0:
+#         # ma90.append(None)
+#         ma90.append(ma90[-1])
+#       else:
+#         ma90.append(ema90/dem90)
+      
+#       ## Go to next 7 days
+#       i += 1
+
+#     ## Averages using the z score
+#     individualAvgData[param] = {
+#       "dates": allDates[6:],
+#       "averagesAll": maAll,
+#       "averages90": ma90
+#     }
+
+#   return individualAvgData, processedData
 
 
 #### FUNCITON: calculates the standard deviation from score data
@@ -737,163 +902,6 @@ def zScoreAllData(filecsv):
     zScoreData[param]["zscoreAll"] = zscoreDataTemp
 
   return zScoreData, processedData
-
-
-#### FUNCTION: calculates 7 DAY WEIGHTED moving average
-def sevenDayWeightedlMovingAverage(filecsv):
-  processedData = dataWithFormScore(filecsv)
-  individualAvgData = {}
- 
-  ## list is already sorted, so take the first and last date of ["total"]["dates"]
-  startDate = processedData["total"]["dates"][0]
-  endDate = processedData["total"]["dates"][-1]
-
-  ## Get every date between start and end date
-  allDates = [startDate + datetime.timedelta(days = x) for x in range((endDate - startDate).days + 1)]
-
-  for param, data in processedData.items():
-    allData = []
-    expMA = []
-
-    ## Fill allData -1 for any value missing user data
-    for date in allDates:
-      if (date in data["dates"]):
-        ## If date exists in the list, use the recorded data
-        idx = data["dates"].index(date)
-        allData.append(data["values"][idx])
-      else:
-        ## Put -1 as filler to filter out later
-        allData.append(-1)
-
-
-    ### Exponential
-    # n = [0.015625, 0.03125, 0.0625, 0.125, 0.25, 0.5, 1]
-
-    ## Weighted A
-    # n = [0.1429, 0.1667, 0.2, 0.25, 0.3333, 0.5, 1]
-
-    ## Weighted B
-    n = [0.25, 0.2857, 0.3333, 0.4, 0.5, 0.6667, 1]
-
-    ## Starting at the 7th number
-    i = 6
-    while i < len(allData):
-      tempValues = allData[i-6:i+1]
-      ema = 0.0
-      dem = 0.0
-      
-      ## Go though list and calculate the EMA for the selected seven days
-      for j, v in enumerate(tempValues):
-        if v != -1:
-          ema += (v * n[j])
-          dem += n[j]
-      
-      if ema == 0:
-        # expMA.append(None)
-        expMA.append(expMA[-1])
-      else:
-        expMA.append(ema/dem)
-      
-      ## Go to next 7 days
-      i += 1
-
-    individualAvgData[param] = {
-      "dates": allDates[6:],
-      "averages": expMA
-    }
-
-  return individualAvgData, processedData
-
-
-#### FUNCTION: calculates 7 DAY WEIGHTED moving average WITH Z-SCORE
-def sevenDayWeightedMovingAverageWithZScore(filecsv):
-  processedData, individualData = zScoreAllData(filecsv)
-  individualAvgData = {}
- 
-  ## list is already sorted, so take the first and last date of ["total"]["dates"]
-  startDate = processedData["total"]["dates"][0]
-  endDate = processedData["total"]["dates"][-1]
-
-  ## Get every date between start and end date
-  allDates = [startDate + datetime.timedelta(days = x) for x in range((endDate - startDate).days + 1)]
-
-  for param, data in processedData.items():
-    ## make two lists, one for the data in past 90 days and other for all data collected
-    allData = []
-    ninetyData = []
-    
-    ## Initialize arrays for the moving average for each set of data
-    maAll = []
-    ma90 = []
-
-    ## Fill allData -1 for any value missing user data
-    for date in allDates:
-      if (date in data["dates"]):
-        ## If date exists in the list, use the recorded data
-        idx = data["dates"].index(date)
-        allData.append(data["zscoreAll"][idx])
-        ninetyData.append(data["zscore90"][idx])
-      else:
-        ## Put -1 as filler to filter out later
-        allData.append(-1)
-        ninetyData.append(-1)
-
-
-    ### Exponential
-    # n = [0.015625, 0.03125, 0.0625, 0.125, 0.25, 0.5, 1]
-
-    ## Weighted A
-    # n = [0.1429, 0.1667, 0.2, 0.25, 0.3333, 0.5, 1]
-
-    ## Weighted B
-    n = [0.25, 0.2857, 0.3333, 0.4, 0.5, 0.6667, 1]
-
-    ## Starting at the 7th number
-    i = 6
-    while i < len(allData):
-      tempValuesAll = allData[i-6:i+1]
-      emaAll = 0.0
-      demAll = 0.0
-      
-      ## First go though list and calculate the moving average for the selected seven days for all data
-      for j, v in enumerate(tempValuesAll):
-        if v != -1:
-          emaAll += (v * n[j])
-          demAll += n[j]
-      
-      if emaAll == 0:
-        # maAll.append(None)
-        maAll.append(maAll[-1])
-      else:
-        maAll.append(emaAll/demAll)
-      
-      tempValues90 = ninetyData[i-6:i+1]
-      ema90 = 0.0
-      dem90 = 0.0
-
-      ## Then go though list and calculate the moving average for the selected seven days for the 90 day data
-      for j, v in enumerate(tempValues90):
-        if v != -1:
-          ema90 += (v * n[j])
-          dem90 += n[j]
-      
-      if ema90 == 0:
-        # ma90.append(None)
-        ma90.append(ma90[-1])
-      else:
-        ma90.append(ema90/dem90)
-      
-      ## Go to next 7 days
-      i += 1
-
-    ## Averages using the z score
-    individualAvgData[param] = {
-      "dates": allDates[6:],
-      "averagesAll": maAll,
-      "averages90": ma90
-    }
-
-  return individualAvgData, processedData
 
 
 #### FUNCTION: calculates 14 DAY WEIGHTED moving average with Z-SCORE
@@ -1173,644 +1181,6 @@ def fourteenDayWeightedMovingAverageZScore90Days(filecsv):
   return individualAvgData, processedData
 
 
-# # #### FUNCTION: takes moving average data and plots it with the form score
-# def showMovingAverageAndTotalScore(filecsv, parameter):
-
-#   #### This is for 7 POINT moving average
-#   # avgData, processedData = sevenPointMovingAverage(filecsv)
-#   # graphTitle = "Individual 7 Point Moving Average"
-#   # filename = "_7PT_Moving_Average.png"
-  
-#   #### This is for 7 DAY moving average
-#   # avgData, processedData = sevenDayMovingAverage(filecsv)
-#   # graphTitle = "Individual 7 Day Moving Average"
-#   # filename = "_7DAY_Moving_Average.png"
-
-#   #### This is for 7 POINT EXPONENTIAL moving average
-#   # avgData, processedData = sevenPointExponentialMovingAverage(filecsv)
-#   # graphTitle = "Individual 7 Point Exponential Moving Average"
-#   # filename = "_7PT_Exponential_Moving_Average.png"
-
-#   #### This is for 7 POINT WEIGHTED moving average
-#   # avgData, processedData = sevenPointWeightedMovingAverage(filecsv)
-#   # graphTitle = "Individual 7 Point Weighted Moving Average"
-#   # filename = "_7PT_Weighted_Moving_Average_OTHER.png"
-
-#   #### This is for 7 DAY EXPONENTIAL moving average
-#   # avgData, processedData = sevenDayExponentialMovingAverage(filecsv)
-#   # graphTitle = "Individual 7 Day Exponential Moving Average"
-#   # filename = "_7DAY_Exponential_Moving_Average.png"
-
-#   #### This is for 7 DAY EXPONENTIAL moving average
-#   # avgData, processedData = sevenDayExponentialMovingAverage(filecsv)
-#   # graphTitle = "Individual 7 Day Weighted Moving Average"
-#   # filename = "_B_7DAY_Weighted_Moving_Average.png"
-
-#   #### This is for 7 DAY EXPONENTIAL moving average
-#   # avgData, processedData = twentyEightDayExponentialMovingAverage(filecsv)
-#   # graphTitle = "Individual 28 Day Moving Average"
-#   # filename = "_B_28DAY_Moving_Moving_Average.png"
-
-#   ## initialize the plot
-#   fig, ax = plt.subplots()
-
-#   if (parameter == 'fatigue'):
-#     ## update data so its out of 100
-#     values = [((v*100)/5) for v in avgData["fatigue"]["averages"]]
-#     dates = avgData["fatigue"]["dates"]
-#     ax.plot(dates, values, label='Fatigue')
-#     # graphTitle += 'Fatigue '
-
-#   elif (parameter == 'soreness'):
-#     dates = avgData["soreness"]["dates"]
-#     values = [((v*100)/5) for v in avgData["soreness"]["averages"]]
-#     ax.plot(dates, values, label='Soreness')
-#     # graphTitle += 'Soreness '
-
-#   elif (parameter == 'stress'):
-#     dates = avgData["stress"]["dates"]
-#     values = [((v*100)/5) for v in avgData["stress"]["averages"]]
-#     ax.plot(dates, values, label='Stress')
-#     # graphTitle += 'Stress '
-
-#   elif (parameter == 'sleepQuality'):
-#     dates = avgData["sleepQuality"]["dates"]
-#     values = [((v*100)/5) for v in avgData["sleepQuality"]["averages"]]
-#     ax.plot(dates, values, label='SleepQuality')
-#     # graphTitle += 'SleepQuality '
-
-#   elif (parameter == 'hydration'):
-#     dates = avgData["hydration"]["dates"]
-#     values = [((v*100)/5) for v in avgData["hydration"]["averages"]]
-#     ax.plot(dates, values, label='Hydration')
-#     # graphTitle += 'Hydration '
-
-#   elif (parameter == 'nutrition'):
-#     dates = avgData["nutrition"]["dates"]
-#     values = [((v*100)/5) for v in avgData["nutrition"]["averages"]]
-#     ax.plot(dates, values, label='Nutrition')
-#     # graphTitle += 'Nutrition '
-
-#   elif (parameter == 'overall'):
-#     dates = avgData["overall"]["dates"]
-#     values = [((v*100)/5) for v in avgData["overall"]["averages"]]
-#     ax.plot(dates, values, label='Overall')
-#     # graphTitle += 'Overall '
-
-#   ## Add the total form score 
-#   totalDates = avgData["total"]["dates"]
-#   totalValues = avgData["total"]["averages"]
-#   ax.plot(totalDates, totalValues, label='Total Score')
-#   # graphTitle += 'with Total Score '
-
-#   ax.grid(True)
-#   ax.set_ylim(0, 105)
-#   ax.format_xdata = mdates.DateFormatter('%Y-%m-%d')
-#   fig.autofmt_xdate()
-#   ax.legend(loc=3)
-
-#   ## set axes and title
-#   ax.set_xlabel('Dates')
-#   ax.set_ylabel('Values')
-#   ax.set_title(graphTitle)
-  
-#   plt.savefig(parameter + filename)
-#   plt.show()
-
-
-# #### FUNCTION: takes moving average data and plots it with the form score
-# def showZscoreMovingAverageAndTotalScore(filecsv, parameter):
-
-#   # #### This is for Z-SCORE of each category with form total 
-#   # avgData, processedData = sevenDayWeightedMovingAverageWithZScore(filecsv)
-#   # graphTitle = "Individual 7 Day Moving Average using All Data Z-Score"
-#   # filename = "_A_all_7DAY_Moving_Moving_Average_ZScore.png"
-
-#   # avgData, processedData = sevenDayWeightedMovingAverageWithZScore(filecsv)
-#   # graphTitle = "Individual 7 Day Moving Average using All Data Z-Score"
-#   # filename = "_B_all_7DAY_Moving_Moving_Average_ZScore.png"
-
-#   #### This is for Z-SCORE of each category with form total 
-#   # avgData, processedData = fourteenDayWeightedMovingAverage(filecsv)
-#   # graphTitle = "Individual 14 Day Moving Average with All Data Z-Score"
-#   # filename = "_A_all_14DAY_Moving_Moving_Average_ZScore.png"
-
-#   # avgData, processedData = fourteenDayWeightedMovingAverage(filecsv)
-#   # graphTitle = "Individual 14 Day Moving Average with All Data Z-Score"
-#   # filename = "_B_all_14DAY_Moving_Moving_Average_ZScore.png"
-
-#   ## initialize the plot
-#   fig, ax = plt.subplots()
-
-#   if (parameter == 'fatigue'):
-#     ## update data so its out of 100
-#     values = avgData["fatigue"]["averages"]
-#     dates = avgData["fatigue"]["dates"]
-#     ax.plot(dates, values, label='Fatigue')
-#     # graphTitle += 'Fatigue '
-
-#   elif (parameter == 'soreness'):
-#     dates = avgData["soreness"]["dates"]
-#     values = avgData["soreness"]["averages"]
-#     ax.plot(dates, values, label='Soreness')
-#     # graphTitle += 'Soreness '
-
-#   elif (parameter == 'stress'):
-#     dates = avgData["stress"]["dates"]
-#     values = avgData["stress"]["averages"]
-#     ax.plot(dates, values, label='Stress')
-#     # graphTitle += 'Stress '
-
-#   elif (parameter == 'sleepQuality'):
-#     dates = avgData["sleepQuality"]["dates"]
-#     values = avgData["sleepQuality"]["averages"]
-#     ax.plot(dates, values, label='SleepQuality')
-#     # graphTitle += 'SleepQuality '
-
-#   elif (parameter == 'hydration'):
-#     dates = avgData["hydration"]["dates"]
-#     values = avgData["hydration"]["averages"]
-#     ax.plot(dates, values, label='Hydration')
-#     # graphTitle += 'Hydration '
-
-#   elif (parameter == 'nutrition'):
-#     dates = avgData["nutrition"]["dates"]
-#     values = avgData["nutrition"]["averages"]
-#     ax.plot(dates, values, label='Nutrition')
-#     # graphTitle += 'Nutrition '
-
-#   elif (parameter == 'overall'):
-#     dates = avgData["overall"]["dates"]
-#     values = avgData["overall"]["averages"]
-#     ax.plot(dates, values, label='Overall')
-#     # graphTitle += 'Overall '
-
-#   ## Add the total form score 
-#   totalDates = avgData["total"]["dates"]
-#   totalValues = avgData["total"]["averages"]
-#   ax.plot(totalDates, totalValues, label='Total Score')
-#   # graphTitle += 'with Total Score '
-
-#   ax.grid(True)
-#   ax.set_ylim(-5.5, 5.5)
-#   ax.format_xdata = mdates.DateFormatter('%Y-%m-%d')
-#   fig.autofmt_xdate()
-#   ax.legend(loc=3)
-
-#   ## set axes and title
-#   ax.set_xlabel('Dates')
-#   ax.set_ylabel('Values')
-#   ax.set_title(graphTitle)
-  
-#   plt.savefig(parameter + filename)
-#   plt.show()
-
-
-# #### FUNCTION: takes moving average data and plots it with the form score
-# def showZscore90DaysVsAllData(filecsv, parameter):
-
-#   #### This is for Z-SCORE of each category 90 days vs all data
-#   # avgData, processedData = sevenDayWeightedMovingAverageWithZScore(filecsv)
-#   # graphTitle = "Individual 7 Day Moving Average, Z-Scores for "
-#   # filename = "_90_All_7DAY_Moving_Average_ZScore.png"
-
-#   #### This is for Z-SCORE of each category 90 days vs all data
-#   avgData, processedData = fourteenDayWeightedMovingAverageZScore(filecsv)
-#   graphTitle = "Individual 14 Day Moving Average, Z-Scores for "
-#   filename = "_90_All_14DAY_Moving_Average_ZScore.png"
-
-#   ## initialize the plot
-#   fig, ax = plt.subplots()
-
-#   if (parameter == 'fatigue'):
-#     ## Add plot using all collected data
-#     values = avgData["fatigue"]["averagesAll"]
-#     dates = avgData["fatigue"]["dates"]
-#     ax.plot(dates, values, label='Fatigue, All Data')
-
-#     ## Add plot using 90 day data
-#     values = avgData["fatigue"]["averages90"]
-#     dates = avgData["fatigue"]["dates"]
-#     ax.plot(dates, values, label='Fatigue, 90 Days')
-    
-#     graphTitle += 'Fatigue'
-
-#   elif (parameter == 'soreness'):
-#     ## Add plot using all collected data
-#     values = avgData["soreness"]["averagesAll"]
-#     dates = avgData["soreness"]["dates"]
-#     ax.plot(dates, values, label='Soreness, All Data')
-
-#     ## Add plot using 90 day data
-#     values = avgData["soreness"]["averages90"]
-#     dates = avgData["soreness"]["dates"]
-#     ax.plot(dates, values, label='Soreness, 90 Days')
-    
-#     graphTitle += 'Soreness'
-
-#   elif (parameter == 'stress'):
-#     ## Add plot using all collected data
-#     values = avgData["stress"]["averagesAll"]
-#     dates = avgData["stress"]["dates"]
-#     ax.plot(dates, values, label='Stress, All Data')
-
-#     ## Add plot using 90 day data
-#     values = avgData["stress"]["averages90"]
-#     dates = avgData["stress"]["dates"]
-#     ax.plot(dates, values, label='Stress, 90 Days')
-    
-#     graphTitle += 'Stress'
-
-#   elif (parameter == 'sleepQuality'):
-#     ## Add plot using all collected data
-#     values = avgData["sleepQuality"]["averagesAll"]
-#     dates = avgData["sleepQuality"]["dates"]
-#     ax.plot(dates, values, label='SleepQuality, All Data')
-
-#     ## Add plot using 90 day data
-#     values = avgData["sleepQuality"]["averages90"]
-#     dates = avgData["sleepQuality"]["dates"]
-#     ax.plot(dates, values, label='SleepQuality, 90 Days')
-    
-#     graphTitle += 'SleepQuality'
-
-#   elif (parameter == 'sleepQuantity'):
-#     ## Add plot using all collected data
-#     values = avgData["sleepQuantity"]["averagesAll"]
-#     dates = avgData["sleepQuantity"]["dates"]
-#     ax.plot(dates, values, label='sleepQuantity, All Data')
-
-#     ## Add plot using 90 day data
-#     values = avgData["sleepQuantity"]["averages90"]
-#     dates = avgData["sleepQuantity"]["dates"]
-#     ax.plot(dates, values, label='sleepQuantity, 90 Days')
-    
-#     graphTitle += 'sleepQuantity'
-
-
-#   elif (parameter == 'hydration'):
-#     ## Add plot using all collected data
-#     values = avgData["hydration"]["averagesAll"]
-#     dates = avgData["hydration"]["dates"]
-#     ax.plot(dates, values, label='Hydration, All Data')
-
-#     ## Add plot using 90 day data
-#     values = avgData["hydration"]["averages90"]
-#     dates = avgData["hydration"]["dates"]
-#     ax.plot(dates, values, label='Hydration, 90 Days')
-    
-#     graphTitle += 'Hydration'
-
-#   elif (parameter == 'nutrition'):
-#     ## Add plot using all collected data
-#     values = avgData["nutrition"]["averagesAll"]
-#     dates = avgData["nutrition"]["dates"]
-#     ax.plot(dates, values, label='Nutrition, All Data')
-
-#     ## Add plot using 90 day data
-#     values = avgData["nutrition"]["averages90"]
-#     dates = avgData["nutrition"]["dates"]
-#     ax.plot(dates, values, label='Nutrition, 90 Days')
-    
-#     graphTitle += 'Nutrition'
-
-#   elif (parameter == 'overall'):
-#     ## Add plot using all collected data
-#     values = avgData["overall"]["averagesAll"]
-#     dates = avgData["overall"]["dates"]
-#     ax.plot(dates, values, label='Overall, All Data')
-
-#     ## Add plot using 90 day data
-#     values = avgData["overall"]["averages90"]
-#     dates = avgData["overall"]["dates"]
-#     ax.plot(dates, values, label='Overall, 90 Days')
-    
-#     graphTitle += 'Overall'
-
-#   ax.grid(True)
-#   ax.set_ylim(-5.5, 5.5)
-#   ax.format_xdata = mdates.DateFormatter('%Y-%m-%d')
-#   fig.autofmt_xdate()
-#   ax.legend(loc=3)
-
-#   ## set axes and title
-#   ax.set_xlabel('Dates')
-#   ax.set_ylabel('Values')
-#   ax.set_title(graphTitle)
-  
-#   plt.savefig(parameter + filename)
-#   plt.show()
-
-
-# #### FUNCTION: plot raw data with mean / max data to understand different 
-# def showRawMeanMax(filecsv):
-#   #### Load data from csv file 
-#   dataRaw = loadData_oneUser(filecsv)
-
-#   parameterName = 'overall'
-
-#   datesRaw = dataRaw[parameterName]['dates']
-#   valuesRaw = dataRaw[parameterName]['values']
-#   datesUniqueSet = sorted(list(set(datesRaw)))
-
-#   # Initializing lists to store unique dates and the corresponding values, using max or min filetering.
-#   datesUnique = []
-#   valuesUniqueMax = []
-#   valuesUniqueMean = []
-
-#   for i, date in enumerate(datesUniqueSet):
-
-#     # Initialize tempValues
-#     tempValues = []
-#     # Find all values corresponding to the date
-#     tempValues = [valuesRaw[j] for j, x in enumerate(datesRaw) if x == date]
-
-#     # If data exists (which it)
-#     if(len(tempValues)>0):
-
-#       # Store unique date
-#       datesUnique.append(date)
-#       # Store mean of values
-#       valuesUniqueMean.append(sum(tempValues)/float(len(tempValues)))
-#       valuesUniqueMax.append(max(tempValues))
-
-
-#   #### Plotting data
-#   fig, ax = plt.subplots()
-#   ax.plot(datesUnique, valuesUniqueMean, label='Unique Mean')
-#   ax.plot(datesUnique, valuesUniqueMax, label='Unique Max')
-#   ax.plot(datesRaw, valuesRaw, label='Raw Data')
-#   ax.grid(True)
-#   ax.format_xdata = mdates.DateFormatter('%Y-%m-%d')
-#   fig.autofmt_xdate()
-#   ax.legend(loc=4)
-#   ## set axes and title
-#   ax.set_xlabel('Dates')
-#   ax.set_ylabel(parameterName)
-#   ax.set_title(parameterName)
-#   plt.show()
-
-
-# #### FUNCTION: takes params and plots on graph (timeseries)
-# def individualParamTrend(filecsv, parameters):
-#   individualData = dataPostMeanProcessing_oneUser(filecsv)
-
-#   #### initialize all to false
-#   params = {
-#     'sleepQuality': 'false',
-#     'hydration': 'false',
-#     'nutrition': 'false',
-#     'stress': 'false',
-#     'fatigue': 'false',
-#     'soreness': 'false',
-#     'overall': 'false'
-#   }
-
-#   paramList = [p.strip() for p in parameters.split(',')]
-#   for param in paramList:
-#     graphParams[param] = 'true'
-
-#   ## initialize the plot
-#   fig, ax = plt.subplots()
-#   graphTitle = "Individual (userId 4349) Trends for "
-
-#   ## add all params indicated by user
-#   ## each block adds a new plot to the figure
-#   if (params['fatigue'] == 'true'):
-#     dates = individualData["fatigue"]["dates"]
-#     values = individualData["fatigue"]["values"]
-#     ax.plot(dates, values, label='fatigue')
-#     graphTitle += 'Fatigue '
-
-#   if (params['soreness'] == 'true'):
-#     dates = individualData["soreness"]["dates"]
-#     values = individualData["soreness"]["values"]      
-#     ax.plot(dates, values, label='soreness')
-#     graphTitle += 'Soreness '
-
-#   if (params['stress'] == 'true'):
-#     dates = individualData["stress"]["dates"]
-#     values = individualData["stress"]["values"] 
-#     ax.plot(dates, values, label='stress')
-#     graphTitle += 'Stress '
-
-#   if (params['sleepQuality'] == 'true'):
-#     dates = individualData["sleepQuality"]["dates"]
-#     values = individualData["sleepQuality"]["values"] 
-#     ax.plot(dates, values, label='sleepQuality')
-#     graphTitle += 'SleepQuality '
-
-#   if (params['hydration'] == 'true'):
-#     dates = individualData["hydration"]["dates"]
-#     values = individualData["hydration"]["values"] 
-#     ax.plot(dates, values, label='hydration')
-#     graphTitle += 'Hydration '
-
-#   if (params['nutrition'] == 'true'):
-#     dates = individualData["nutrition"]["dates"]
-#     values = individualData["nutrition"]["values"] 
-#     ax.plot(dates, values, label='nutrition')
-#     graphTitle += 'Nutrition '
-
-#   if (params['overall'] == 'true'):
-#     dates = individualData["overall"]["dates"]
-#     values = individualData["overall"]["values"] 
-#     ax.plot(dates, values, label='overall')
-#     graphTitle += 'Overall '
-
-#   ax.grid(True)
-#   ax.set_ylim(0, 5.5)   ## setting to 5.5 to give room at the top of the graph
-#   ax.format_xdata = mdates.DateFormatter('%Y-%m-%d')
-#   fig.autofmt_xdate()
-#   ax.legend(loc=3)
-
-#   ## set axes and title
-#   ax.set_xlabel('Dates')
-#   ax.set_ylabel('Values')
-#   ax.set_title(graphTitle)
-  
-#   plt.show()
-
-
-# #### FUNCTION: plots form score data on a graph (timeseries)
-# def graphFormScore(filecsv, userId):
-
-#   dataFormScore = dataWithFormScore(filecsv)
-#   dates = dataFormScore["total"]["dates"]
-#   values = dataFormScore["total"]["values"]
-
-#   fig, ax = plt.subplots()
-#   graphTitle = "Individual (userId " + userId +") Form Score"
-#   dates = data["dates"]
-#   values = data["values"]
-#   ax.plot(dates, values, label='Form Score')
-
-#   ax.grid(True)
-#   ax.set_ylim(0, 100)
-#   ax.format_xdata = mdates.DateFormatter('%Y-%m-%d')
-#   fig.autofmt_xdate()
-#   ax.legend(loc=3)
-
-#   ## set axes and title
-#   ax.set_xlabel('Dates')
-#   ax.set_ylabel('Form Score (total)')
-#   ax.set_title(graphTitle)
-
-#   plt.show()
-  
-
-# #### FUNCTION: plots parameter with formscore 
-# def graphParamAndFormScore(filecsv, parameter):
-#   individualData = dataWithFormScore(filecsv)
-
-#   ## initialize the plot
-#   fig, ax = plt.subplots()
-#   graphTitle = "Individual Trends for "
-
-#   if (parameter == 'fatigue'):
-#     ## update data so its out of 100
-#     values = [((v*100)/5) for v in individualData["fatigue"]["values"]]
-#     dates = individualData["fatigue"]["dates"]
-#     ax.plot(dates, values, label='fatigue')
-#     graphTitle += 'Fatigue '
-
-#   elif (parameter == 'soreness'):
-#     dates = individualData["soreness"]["dates"]
-#     values = [((v*100)/5) for v in individualData["soreness"]["values"]]
-#     ax.plot(dates, values, label='soreness')
-#     graphTitle += 'Soreness '
-
-#   elif (parameter == 'stress'):
-#     dates = individualData["stress"]["dates"]
-#     values = [((v*100)/5) for v in individualData["stress"]["values"]]
-#     ax.plot(dates, values, label='stress')
-#     graphTitle += 'Stress '
-
-#   elif (parameter == 'sleepQuality'):
-#     dates = individualData["sleepQuality"]["dates"]
-#     values = [((v*100)/5) for v in individualData["sleepQuality"]["values"]]
-#     ax.plot(dates, values, label='sleepQuality')
-#     graphTitle += 'SleepQuality '
-
-#   elif (parameter == 'hydration'):
-#     dates = individualData["hydration"]["dates"]
-#     values = [((v*100)/5) for v in individualData["hydration"]["values"]]
-#     ax.plot(dates, values, label='hydration')
-#     graphTitle += 'Hydration '
-
-#   elif (parameter == 'nutrition'):
-#     dates = individualData["nutrition"]["dates"]
-#     values = [((v*100)/5) for v in individualData["nutrition"]["values"]]
-#     ax.plot(dates, values, label='nutrition')
-#     graphTitle += 'Nutrition '
-
-#   elif (parameter == 'overall'):
-#     dates = individualData["overall"]["dates"]
-#     values = [((v*100)/5) for v in individualData["overall"]["values"]]
-#     ax.plot(dates, values, label='overall')
-#     graphTitle += 'Overall '
-
-#   ## Add the total form score 
-#   totalDates = individualData["total"]["dates"]
-#   totalValues = individualData["total"]["values"]
-#   ax.plot(totalDates, totalValues, label='Total Score')
-#   graphTitle += 'with Total Score '
-
-#   ax.grid(True)
-#   ax.set_ylim(0, 105)
-#   ax.format_xdata = mdates.DateFormatter('%Y-%m-%d')
-#   fig.autofmt_xdate()
-#   ax.legend(loc=3)
-
-#   ## set axes and title
-#   ax.set_xlabel('Dates')
-#   ax.set_ylabel('Values')
-#   ax.set_title(graphTitle)
-  
-#   plt.savefig(parameter + "_with_form_score.png")
-#   plt.show()
-
-
-# #### FUNCTION: correlation coeffiecent for params vs overall
-# def correlationCoeffiecent(filecsv, parameter):
-  
-#   avgData, processedData = sevenDayWeightedMovingAverageWithZScore(filecsv)
-
-#   r = np.corrcoef(avgData[parameter]["averagesAll"], avgData["overall"]["averagesAll"])[0,1]
-
-#   print "Correlation coeffiecent for " + parameter + " is "
-#   print r
-#   return r
-
-
-# def graphScatterPlot(filecsv, parameter1, parameter2):
-#   # avgData, processedData = sevenDayWeightedMovingAverageWithZScore(filecsv)
-#   avgData, processedData = fourteenDayWeightedMovingAverageZScore(filecsv)
-
-#   x = avgData[parameter1]["averagesAll"]
-#   y = avgData[parameter2]["averagesAll"]
-#   graphTitle = "14 Day Weighted Moving Average Z-Score, " + parameter1 + " and " + parameter2
-
-#   r = np.corrcoef(avgData[parameter1]["averagesAll"], avgData[parameter2]["averagesAll"])[0,1]
-
-#   N = 4
-#   colors = np.random.rand(N)
-#   area = 120
-
-#   fig, ax = plt.subplots()
-
-#   ax.grid(True)
-
-#   ax.text(0.95, 0.01, 'r = ' + str(r),
-#         verticalalignment='bottom', horizontalalignment='right',
-#         transform=ax.transAxes,
-#         color='black', fontsize=20)
-  
-#   ## set axes and title
-#   ax.set_title(graphTitle)
-
-#   ax.plot(np.unique(x), np.poly1d(np.polyfit(x, y, 1))(np.unique(x)))
-#   ax.scatter(x, y, s=area, c=colors, alpha=0.5)
-
-#   plt.savefig("14DAY_" + parameter1 + "_" + parameter2+ "_scatter_plot.png")
-#   # plt.show()
-
-
-# #### FUNCTION: scatterplot for correlation
-# def createScatterPlotDF(filecsv):
-#   processedData = dataWithFormScore(filecsv)
-
-#   ## Multiply all of the regular params by 20 so it can be compared to the total score
-#   # d = {
-#   #   "fatigue": [i * 20 for i in processedData["fatigue"]["values"]],
-#   #   "soreness": [i * 20 for i in processedData["soreness"]["values"]],
-#   #   "stress": [i * 20 for i in processedData["stress"]["values"]],
-#   #   "sleepQuality": [i * 20 for i in processedData["sleepQuality"]["values"]],
-#   #   "nutrition": [i * 20 for i in processedData["nutrition"]["values"]],
-#   #   "hydration": [i * 20 for i in processedData["hydration"]["values"]],
-#   #   "overall": [i * 20 for i in processedData["overall"]["values"]],
-#   #   "total": processedData["total"]["values"]
-#   # }
-
-#   d = {
-#     "fatigue": processedData["fatigue"]["values"],
-#     "soreness": processedData["soreness"]["values"],
-#     # "stress": processedData["stress"]["values"],
-#     # "sleepQuality": processedData["sleepQuality"]["values"],
-#     # "nutrition": processedData["nutrition"]["values"],
-#     # "hydration": processedData["hydration"]["values"],
-#     # "overall": processedData["overall"]["values"],
-#     # "total": [i / 20 for i in processedData["total"]["values"]]
-#   }
-
-#   df = pd.DataFrame(data=d)
-
-#   # print df
-
-#   fig = ff.create_scatterplotmatrix(df, height=1000, width=1000)
-#   py.iplot(fig, filename='parameters_matrix_scatterplot_2')
-
-
 ##########################################################################################
 ##########################################################################################
 ##########################################################################################
@@ -1819,7 +1189,8 @@ def fourteenDayWeightedMovingAverageZScore90Days(filecsv):
 #### FUNCTION: takes in avg intValue per param by date from csv 
 #### finds the mean and std for each parameter 
 def loadGPscores_oneUser(GPdata):
- ## empty dictionary to be filled with general pop data
+  
+  ## empty dictionary to be filled with general pop data
   generalPopulationData = {
     "fatigue": {
       "values": [],
@@ -1900,22 +1271,22 @@ def loadGPscores_oneUser(GPdata):
 
       ## Map the hours of sleep to score for the total score calculation
       if param == 614:
-          if (intValue >= 9):
-            generalPopulationData["sleepQuantity"]["values"].append(100)
-          elif (intValue >= 8 and intValue < 9):
-            generalPopulationData["sleepQuantity"]["values"].append(90)
-          elif (intValue >= 7 and intValue < 8):
-            generalPopulationData["sleepQuantity"]["values"].append(80)
-          elif (intValue >= 6 and intValue < 7):
-            generalPopulationData["sleepQuantity"]["values"].append(70)
-          elif (intValue >= 5 and intValue < 6):
-            generalPopulationData["sleepQuantity"]["values"].append(55)
-          elif (intValue >= 4 and intValue < 5):
-            generalPopulationData["sleepQuantity"]["values"].append(40)
-          else:
-            generalPopulationData["sleepQuantity"]["values"].append(0)
+        if (intValue >= 9):
+          generalPopulationData["sleepQuantity"]["values"].append(100)
+        elif (intValue >= 8 and intValue < 9):
+          generalPopulationData["sleepQuantity"]["values"].append(90)
+        elif (intValue >= 7 and intValue < 8):
+          generalPopulationData["sleepQuantity"]["values"].append(80)
+        elif (intValue >= 6 and intValue < 7):
+          generalPopulationData["sleepQuantity"]["values"].append(70)
+        elif (intValue >= 5 and intValue < 6):
+          generalPopulationData["sleepQuantity"]["values"].append(55)
+        elif (intValue >= 4 and intValue < 5):
+          generalPopulationData["sleepQuantity"]["values"].append(40)
+        else:
+          generalPopulationData["sleepQuantity"]["values"].append(0)
     
-  ## Go through the object we just created and find the mean and std
+  ## Go through the object we just created and find the mean and std with numpy
   for param, data in generalPopulationData.items():
 
     generalPopulationData[param]["mean"] = np.mean(generalPopulationData[param]["values"])
@@ -1935,8 +1306,6 @@ def loadGPscores_oneUser(GPdata):
     "mean": np.mean(totalScoreData["totalScore"]),
     "std": np.std(totalScoreData["totalScore"])
   }
-
-  # print generalPopulationData
 
   return generalPopulationData
 
@@ -1976,7 +1345,7 @@ def getTotalScorePerDate(dates, filecsv):
         totalScoreData["count"][idx] += 100
 
       ## Map the hours of sleep to score for the total score calculation
-      elif (param -- 614):
+      elif (param == 614):
         if (intValue >= 9):
           totalScoreData["sum"][idx] += (100)
           totalScoreData["count"][idx] += 100
@@ -1996,10 +1365,9 @@ def getTotalScorePerDate(dates, filecsv):
           totalScoreData["sum"][idx] += (40)
           totalScoreData["count"][idx] += 100
         else:
-          # totalScoreData["sum"][idx] += (0)
           totalScoreData["count"][idx] += 100
 
-  ## Go through the data and calculate form score per day 
+  ## Go through the data and calculate form score per day out of 100
   for i, s in enumerate(totalScoreData["sum"]):
     totalScoreData["totalScore"].append((s*100)/(totalScoreData["count"][i]))
 
@@ -2008,9 +1376,10 @@ def getTotalScorePerDate(dates, filecsv):
 
 #### FUNCITON: calculates the zscore for each parameter 
 #### using the personal history (PH)
-def zScorePH90Days(filecsv):
+def zScorePH90Days(filecsv, filecsvGP):
   processedData = dataWithFormScore(filecsv)
-  # print processedData["fatigue"]["dates"]
+
+  generalPopulationData = loadGPscores_oneUser(filecsvGP)
   
   ## Initialize object to return with all data points
   individualAvgData = {}
@@ -2021,6 +1390,7 @@ def zScorePH90Days(filecsv):
     meanPH = []
     stdPH = []
 
+
     for d in data["dates"]:
       
       ## For each date, get the mean and std for the past 90 days
@@ -2029,10 +1399,20 @@ def zScorePH90Days(filecsv):
       
       ## Go through dates again to find the values in past 90 days
       for j, innerDate in enumerate(data["dates"]):
-        if ((innerDate < d) and (innerDate > ninetyDaysAgo)):
+        if ((innerDate <= d) and (innerDate > ninetyDaysAgo)):
 
           ## Add the value to the 90 day list
           ninetyDayData.append(data["values"][j])
+
+
+      ## If we don't have 10 data points, use the GP mean for this param for calculating mean and std
+      if len(ninetyDayData) < 10:
+        i = 0
+        weightedGeneralPop = (10 - len(ninetyDayData))
+        while (i < weightedGeneralPop):
+          ## Add the general population mean to the list to calculate the mean and std
+          ninetyDayData.append(generalPopulationData[param]["mean"])
+          i += 1
 
       ## Get the mean and standard deviation using data from past 90 days
       meanPH.append(np.mean(ninetyDayData))
@@ -2061,20 +1441,16 @@ def zScorePH90Days(filecsv):
     ## Add z-score to the data in the object to return
     individualAvgData[param]["zscorePH"] = zscoreData
 
-  # print individualAvgData
-
   ## Returns object of parameters with dates, score values, means, stds, and z-scores using the 90 day personal history
-  return individualAvgData
+  return individualAvgData, generalPopulationData
 
 
 #### FUNCITON: calculates the zscore for each parameter 
 #### using the general population data (GP)
-def zScoreAllDataGP(filecsv):
+def zScoreAllDataGP(filecsv, filecsvGP):
 
   ## Already have the PH data from this function
-  individualAvgData = zScorePH90Days(filecsv)
-
-  generalPopulationData = loadGPscores_oneUser('GP_param_intValue_by_date.csv')
+  individualAvgData, generalPopulationData = zScorePH90Days(filecsv, filecsvGP)
 
   # Add z-score for all data avg and std
   for param, data in individualAvgData.items():
@@ -2094,9 +1470,9 @@ def zScoreAllDataGP(filecsv):
 
 
 #### FUNCTION: calculates the 14 day weighted moving average of the z-score using the PH data
-def fourteenDayWeightedMovingAverageZScorePH(filecsv):
+def fourteenDayWeightedMovingAverageZScorePH(filecsv, filecsvGP):
   ## Get the z-score data for PH and GP, just configuring the PH moving avg here
-  individualAvgData = zScoreAllDataGP(filecsv)
+  individualAvgData = zScoreAllDataGP(filecsv, filecsvGP)
 
   ## list is already sorted, so take the first and last date of ["total"]["dates"]
   startDate = individualAvgData["total"]["dates"][0]
@@ -2131,15 +1507,19 @@ def fourteenDayWeightedMovingAverageZScorePH(filecsv):
       tempValuesAll = tempZscores[i-13:i+1]
       weightedSum = 0.0
       totalCoefficient = 0.0
-      
-      ## First go though list and calculate the moving average for the selected seven days for all data
+
+      ## First go though list and calculate the moving average for the selected fourteen days for all data
       for j, v in enumerate(tempValuesAll):
         if v != -1:
           weightedSum += (v * n[j])
           totalCoefficient += n[j]
       
       if weightedSum == 0:
-        tempMovingAverages.append(tempMovingAverages[-1])
+        ## First value in array, cannot get previous value and all values are 0
+        if i == 13:
+          tempMovingAverages.append(0)
+        else:
+          tempMovingAverages.append(tempMovingAverages[-1])
       else:
         tempMovingAverages.append(weightedSum/totalCoefficient)
       
@@ -2154,9 +1534,9 @@ def fourteenDayWeightedMovingAverageZScorePH(filecsv):
 
 
 #### FUNCTION: calculates the 14 day weighted moving average of the z-score using the GP data
-def fourteenDayWeightedMovingAverageZScoreGP(filecsv):
+def fourteenDayWeightedMovingAverageZScoreGP(filecsv, filecsvGP):
   ## Get the z-score data for PH and GP, just configuring the PH moving avg here
-  individualAvgData = fourteenDayWeightedMovingAverageZScorePH(filecsv)
+  individualAvgData = fourteenDayWeightedMovingAverageZScorePH(filecsv, filecsvGP)
 
   ## list is already sorted, so take the first and last date of ["total"]["dates"]
   startDate = individualAvgData["total"]["dates"][0]
@@ -2214,10 +1594,10 @@ def fourteenDayWeightedMovingAverageZScoreGP(filecsv):
 
 
 #### FUNCTION: calculate bridge score for each parameter and total score (personal history only)
-def calculatePersonalHistoryBridgeScore(filecsv):
+def calculatePersonalHistoryBridgeScore(filecsv, filecsvGP):
   ## Returns object with: dates, scores, meanPH, stdPh, meanGP, stdGP, zscorePH, datesMovingAveragePH, weightedMovingAveragePH, 
   ## zscoreGP, datesMovingAverageGP, weightedMovingAverageGP
-  individualData = fourteenDayWeightedMovingAverageZScoreGP(filecsv)
+  individualData = fourteenDayWeightedMovingAverageZScoreGP(filecsv, filecsvGP)
 
   for param, data in individualData.items():
     ## Approximating e = 2.718281
@@ -2229,10 +1609,10 @@ def calculatePersonalHistoryBridgeScore(filecsv):
 
 
 #### FUNCTION: calculate bridge score for each parameter and total score
-def calculateGeneralPopulationBridgeScore(filecsv):
+def calculateGeneralPopulationBridgeScore(filecsv, filecsvGP):
   ## Returns object with: dates, scores, meanPH, stdPh, meanGP, stdGP, zscorePH, datesMovingAveragePH, weightedMovingAveragePH, 
   ## zscoreGP, datesMovingAverageGP, weightedMovingAverageGP and bridgeScorePH
-  individualData = calculatePersonalHistoryBridgeScore(filecsv)
+  individualData = calculatePersonalHistoryBridgeScore(filecsv, filecsvGP)
 
   for param, data in individualData.items():
     bridgeScorePersonalHistory = [((4/(4+((np.power([2.718281], [-x]))[0]))) * 100) for x in data["weightedMovingAverageGP"]]
@@ -2243,8 +1623,8 @@ def calculateGeneralPopulationBridgeScore(filecsv):
 
 
 #### FUNCTION: user personal history score and general populations score for bridge score for one user
-def calculateBridgeScore(filecsv):
-  individualData = calculateGeneralPopulationBridgeScore(filecsv)
+def calculateBridgeScore(filecsv, filecsvGP):
+  individualData = calculateGeneralPopulationBridgeScore(filecsv, filecsvGP)
 
   for param, data in individualData.items():
     dataBridgeScore = []
@@ -2259,25 +1639,33 @@ def calculateBridgeScore(filecsv):
 
 
 #### FUNCTION: create table of scores for each parameter
-def tableBridgeScores(filecsv):
-  bridgeScoreData = calculateBridgeScore(filecsv)
+def tableBridgeScores(filecsv, filecsvGP):
+  bridgeScoreData = calculateBridgeScore(filecsv, filecsvGP)
 
-  # print len(bridgeScoreData["total"]["bridgeScorePH"])
-  # print len(bridgeScoreData["total"]["bridgeScoreGP"])
-  # print len(bridgeScoreData["total"]["datesMovingAveragePH"])
+  ## Take list of dates we have user input 
+  recordedDates = bridgeScoreData["fatigue"]["dates"]
 
+  ## Initialize the object to place in the csv
+  computedData = {} 
 
-  with open('bridgeScores_user_4349.csv', 'wb') as bridgeScoreTable:
+  ## Create list of data with only dates we have user input
+  for param, data in bridgeScoreData.items():
+    computedData[param] = []
+
+    for i, d in enumerate(recordedDates):
+      computedData[param].append(data["bridgeScore"][i])
+
+  with open('8158_bridge_score_data.csv', 'wb') as bridgeScoreTable:
     writer = csv.writer(bridgeScoreTable)
-    dates = copy.deepcopy(bridgeScoreData["fatigue"]["datesMovingAveragePH"][89:])
+    dates = copy.deepcopy(recordedDates)
     
     ## want first cell to be empty so just add today's date
     dates.insert(0, datetime.datetime.now())
     writer.writerow([datetime.date.isoformat(d) for d in dates])
 
-    for param, data in bridgeScoreData.items():
-      scoreData = copy.deepcopy(data["bridgeScore"][89:])
-      scoreData.insert(0, param)
+    for param, data in computedData.items():
+      scoreData = copy.deepcopy(data)
+      scoreData.insert(int(0), param)
       writer.writerow([(round((x*1.0),4)) if (isinstance(x, float) or isinstance(x, int)) else x for x in scoreData])
 
 
