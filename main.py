@@ -11,16 +11,16 @@ import matplotlib.dates as mdates
 #### Specify the csv file 
 #### CSV file must be raw data only, csv in following format:
 #### userId, parameterId, UNIX timestamp, value
-# filecsv = '12377_performance_log_data.csv'
-# filecsv = '12379_performance_log_data.csv'
-# filecsv = '12426_performance_log_data.csv'
-# filecsv = '17822_performance_log_data.csv'
-# filecsv = '18276_performance_log_data.csv'
-# filecsv = '4349_performance_log_data.csv'
-# filecsv = '5584_performance_log_data.csv'
-filecsv = '8117_performance_log_data.csv'
-# filecsv = '8155_performance_log_data.csv'
-# filecsv = '8158_performance_log_data.csv'
+filecsv = '12377_performance_log_data.csv'
+## filecsv = '12379_performance_log_data.csv'
+## filecsv = '12426_performance_log_data.csv'
+#filecsv = '17822_performance_log_data.csv'
+## filecsv = '18276_performance_log_data.csv'
+## filecsv = '4349_performance_log_data.csv'
+#filecsv = '5584_performance_log_data.csv'
+# filecsv = '8117_performance_log_data.csv'
+## filecsv = '8155_performance_log_data.csv'
+## filecsv = '8158_performance_log_data.csv'
 
 
 

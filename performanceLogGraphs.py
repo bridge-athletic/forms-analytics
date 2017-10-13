@@ -1436,15 +1436,6 @@ def getTotalScorePerDate(dates, filecsv):
 #       meanPH.append(np.mean(ninetyDayData))
 #       stdPH.append(np.std(ninetyDayData))
 
-#       if (param == 'sleepQuality'):
-#         print param
-#         print "General Pop mean: " + str(generalPopulationData[param]["mean"])
-#         print d
-#         print ninetyDayData
-#         print np.mean(ninetyDayData)
-#         print np.std(ninetyDayData)
-#         print
-
 #     individualAvgData[param] = {
 #       "dates": data["dates"],
 #       "values": data["values"],
@@ -1504,15 +1495,6 @@ def zScorePH20Points(filecsv, filecsvGP):
       meanPH.append(np.mean(temp20PointData))
       stdPH.append(np.std(temp20PointData))
 
-      if (param == 'sleepQuality'):
-        print param
-        print "General Pop mean: " + str(generalPopulationData[param]["mean"])
-        print d
-        print temp20PointData
-        print np.mean(temp20PointData)
-        print np.std(temp20PointData)
-        print
-
     individualAvgData[param] = {
       "dates": data["dates"],
       "values": data["values"],
@@ -1520,23 +1502,23 @@ def zScorePH20Points(filecsv, filecsvGP):
       "stdPH": stdPH
     }
 
-  # Add z-score for the 90 day avg and std
-  for param, data in individualAvgData.items():
+  # # Add z-score for the 90 day avg and std
+  # for param, data in individualAvgData.items():
     
-    ## Initialize the z-score list 
-    zscoreData = []
+  #   ## Initialize the z-score list 
+  #   zscoreData = []
 
-    for i, d in enumerate(data["dates"]):
-      if data["stdPH"][i] == 0:
-        zscoreData.append(0)
-      else: 
-        zscore = (data["values"][i] - data["meanPH"][i]) / data["stdPH"][i]
-        zscoreData.append(zscore)
+  #   for i, d in enumerate(data["dates"]):
+  #     if data["stdPH"][i] == 0:
+  #       zscoreData.append(0)
+  #     else: 
+  #       zscore = (data["values"][i] - data["meanPH"][i]) / data["stdPH"][i]
+  #       zscoreData.append(zscore)
 
-    ## Add z-score to the data in the object to return
-    individualAvgData[param]["zscorePH"] = zscoreData
+  #   ## Add z-score to the data in the object to return
+  #   individualAvgData[param]["zscorePH"] = zscoreData
 
-  ## Returns object of parameters with dates, score values, means, stds, and z-scores using the 90 day personal history
+  ## Returns object of parameters with dates, score values, means and stds using the 90 day personal history
   return individualAvgData, generalPopulationData
 
 
@@ -1578,33 +1560,36 @@ def fourteenDayWeightedMovingAverageZScorePH(filecsv, filecsvGP):
   allDates = [startDate + datetime.timedelta(days = x) for x in range((endDate - startDate).days + 1)]
 
   for param, data in individualAvgData.items():
-    ## Initialize the list to hold the z-score
-    tempZscores = []
+    ## Initialize the list to hold the temp data 
+    tempData = []
     
-    ## Initialize array
-    tempMovingAverages = []
-
     ## Fill with -1 for any value missing recorded user data
-    for date in allDates:
+    for d in allDates:
       ## If date exists in the parameter's date list, use the recorded data
-      if (date in data["dates"]):
-        idx = data["dates"].index(date)
-        tempZscores.append(data["zscorePH"][idx])
+      if (d in data["dates"]):
+        idx = data["dates"].index(d)
+        tempData.append(data["meanPH"][idx])
       else:
         ## Put -1 as filler to filter out later
-        tempZscores.append(-1)
+        tempData.append(-1)
 
     ## Weighted B
     n = [0.1429, 0.1429, 0.1538, 0.1667, 0.1818, 0.2, 0.2222, 0.25, 0.2857, 0.3333, 0.4, 0.5, 0.6667, 1]
 
-    ## Starting at the 13th number
-    i = 13
-    while i < len(tempZscores):
-      tempValuesAll = tempZscores[i-13:i+1]
+    ## Initialize array to hold moving average for all dates
+    tempMovingAverages = []
+
+    i = 0
+    while i < len(tempData):
+      tempValuesAll = []
+      if i < 13:
+        tempValuesAll = tempData[0:i+1]
+      else:
+        tempValuesAll = tempData[i-13:i+1]
       weightedSum = 0.0
       totalCoefficient = 0.0
 
-      ## First go though list and calculate the moving average for the selected fourteen days for all data
+      ## Go though list and calculate the moving average for the selected fourteen days for all data
       for j, v in enumerate(tempValuesAll):
         if v != -1:
           weightedSum += (v * n[j])
@@ -1612,19 +1597,35 @@ def fourteenDayWeightedMovingAverageZScorePH(filecsv, filecsvGP):
       
       if weightedSum == 0:
         ## First value in array, cannot get previous value and all values are 0
-        if i == 13:
+        if i < 13:
           tempMovingAverages.append(0)
         else:
           tempMovingAverages.append(tempMovingAverages[-1])
       else:
         tempMovingAverages.append(weightedSum/totalCoefficient)
-      
+    
       ## Go to next 14 days
       i += 1
 
-    ## Add averages using the z score from personal history data
-    individualAvgData[param]["datesMovingAveragePH"] = allDates[13:]
-    individualAvgData[param]["weightedMovingAveragePH"] = tempMovingAverages
+    ## Go through the 14 day moving average and select the days that had user input
+    filteredData = []
+    zscoreData = []
+
+    for k, userDate in enumerate(data["dates"]):
+      dateIndex = allDates.index(userDate)
+      meanData = tempMovingAverages[dateIndex]
+      filteredData.append(meanData)
+        
+      if data["stdPH"][k] == 0:
+        zscoreData.append(0)
+      else: 
+        zscore = (data["values"][k] - meanData) / data["stdPH"][k]
+        zscoreData.append(zscore)
+
+    ## Add weighted moving average and zscore data using personal history data
+    individualAvgData[param]["weightedDates"] = data["dates"][7:]
+    individualAvgData[param]["weightedMovingAveragePH"] = filteredData[7:]
+    individualAvgData[param]["weightedMovingAverageZscorePH"] = zscoreData[7:]
 
   return individualAvgData
 
@@ -1643,7 +1644,7 @@ def fourteenDayWeightedMovingAverageZScoreGP(filecsv, filecsvGP):
 
   for param, data in individualAvgData.items():
     ## Initialize the list to hold the z-score
-    tempZscores = []
+    tempData = []
     
     ## Initialize array
     tempMovingAverages = []
@@ -1653,18 +1654,22 @@ def fourteenDayWeightedMovingAverageZScoreGP(filecsv, filecsvGP):
       ## If date exists in the parameter's date list, use the recorded data
       if (date in data["dates"]):
         idx = data["dates"].index(date)
-        tempZscores.append(data["zscoreGP"][idx])
+        tempData.append(data["zscoreGP"][idx])
       else:
         ## Put -1 as filler to filter out later
-        tempZscores.append(-1)
+        tempData.append(-1)
 
     ## Weighted B
     n = [0.1429, 0.1429, 0.1538, 0.1667, 0.1818, 0.2, 0.2222, 0.25, 0.2857, 0.3333, 0.4, 0.5, 0.6667, 1]
 
-    ## Starting at the 13th number
-    i = 13
-    while i < len(tempZscores):
-      tempValuesAll = tempZscores[i-13:i+1]
+    i = 0
+    while i < len(tempData):
+      tempValuesAll = []
+      if i < 13:
+        tempValuesAll = tempData[0:i+1]
+      else:
+        tempValuesAll = tempData[i-13:i+1]
+
       weightedSum = 0.0
       totalCoefficient = 0.0
       
@@ -1675,16 +1680,25 @@ def fourteenDayWeightedMovingAverageZScoreGP(filecsv, filecsvGP):
           totalCoefficient += n[j]
       
       if weightedSum == 0:
-        tempMovingAverages.append(tempMovingAverages[-1])
+        ## First value in array, cannot get previous value and all values are 0
+        if i < 13:
+          tempMovingAverages.append(0)
+        else:
+          tempMovingAverages.append(tempMovingAverages[-1])
       else:
         tempMovingAverages.append(weightedSum/totalCoefficient)
       
       ## Go to next 14 days
       i += 1
 
-    ## Add averages using the z score from personal history data
-    individualAvgData[param]["datesMovingAverageGP"] = allDates[13:]
-    individualAvgData[param]["weightedMovingAverageGP"] = tempMovingAverages
+    filteredData = []
+
+    for userDate in data["dates"]:
+      dateIndex = allDates.index(userDate)
+      filteredData.append(tempMovingAverages[dateIndex])
+     
+    ## Add averages using the z score from general population data
+    individualAvgData[param]["weightedMovingAverageZscoreGP"] = filteredData[7:]
 
   return individualAvgData
 
@@ -1697,7 +1711,7 @@ def calculatePersonalHistoryBridgeScore(filecsv, filecsvGP):
 
   for param, data in individualData.items():
     ## Approximating e = 2.718281
-    bridgeScorePersonalHistory = [((4/(4+((np.power([2.718281], [-x]))[0]))) * 100) for x in data["weightedMovingAveragePH"]]
+    bridgeScorePersonalHistory = [((4/(4+((np.power([2.718281], [-x]))[0]))) * 100) for x in data["weightedMovingAverageZscorePH"]]
 
     individualData[param]["bridgeScorePH"] = bridgeScorePersonalHistory
 
@@ -1711,7 +1725,7 @@ def calculateGeneralPopulationBridgeScore(filecsv, filecsvGP):
   individualData = calculatePersonalHistoryBridgeScore(filecsv, filecsvGP)
 
   for param, data in individualData.items():
-    bridgeScorePersonalHistory = [((4/(4+((np.power([2.718281], [-x]))[0]))) * 100) for x in data["weightedMovingAverageGP"]]
+    bridgeScorePersonalHistory = [((4/(4+((np.power([2.718281], [-x]))[0]))) * 100) for x in data["weightedMovingAverageZscoreGP"]]
 
     individualData[param]["bridgeScoreGP"] = bridgeScorePersonalHistory
 
@@ -1726,7 +1740,7 @@ def calculateBridgeScore(filecsv, filecsvGP):
     dataBridgeScore = []
 
     ## Can assume that the date exists in general population because this user is in the general population
-    for i, d in enumerate(data["datesMovingAveragePH"]):
+    for i, d in enumerate(data["weightedDates"]):
       dataBridgeScore.append((0.67*(data["bridgeScorePH"][i])) + (0.33*(data["bridgeScoreGP"][i])))
     
     individualData[param]["bridgeScore"] = dataBridgeScore
@@ -1738,28 +1752,36 @@ def calculateBridgeScore(filecsv, filecsvGP):
 def tableBridgeScores(filecsv, filecsvGP):
   bridgeScoreData = calculateBridgeScore(filecsv, filecsvGP)
 
-  ## Take list of dates we have user input 
-  recordedDates = bridgeScoreData["fatigue"]["dates"]
+  finalCSVData = {}
 
-  ## Initialize the object to place in the csv
-  computedData = {} 
-
-  ## Create list of data with only dates we have user input
+  ## Get list of all dates for bridge scores
+  datesRaw = []
   for param, data in bridgeScoreData.items():
-    computedData[param] = []
+    finalCSVData[param] = []
+    datesRaw += data["weightedDates"]
 
-    for i, d in enumerate(recordedDates):
-      computedData[param].append(data["bridgeScore"][i])
+  ## List of dates for every piece of data 
+  finalCSVData["dates"] = sorted(list(set(datesRaw)))
 
-  with open('8117_bridge_score_data.csv', 'wb') as bridgeScoreTable:
+  for i, d in enumerate(finalCSVData["dates"]):
+
+    ## Go through each param and construct list of values that match the dates
+    for param, data in bridgeScoreData.items():
+      if d in data["weightedDates"]:
+        didx = data["weightedDates"].index(d)
+        finalCSVData[param].append(data["bridgeScore"][didx])
+      else:
+        finalCSVData[param].append(-1)
+
+  with open('8158_bridge_score_data.csv', 'wb') as bridgeScoreTable:
     writer = csv.writer(bridgeScoreTable)
-    dates = copy.deepcopy(recordedDates)
+    dates = copy.deepcopy(finalCSVData["dates"])
     
     ## want first cell to be empty so just add today's date
     dates.insert(0, datetime.datetime.now())
     writer.writerow([datetime.date.isoformat(d) for d in dates])
 
-    for param, data in computedData.items():
+    for param, data in finalCSVData.items():
       scoreData = copy.deepcopy(data)
       scoreData.insert(int(0), param)
       writer.writerow([(round((x*1.0),4)) if (isinstance(x, float) or isinstance(x, int)) else x for x in scoreData])
