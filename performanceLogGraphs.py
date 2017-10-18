@@ -1503,7 +1503,7 @@ def getTotalScorePerDate(dates, filecsv):
 
 #### FUNCITON: calculates the zscore for each parameter 
 #### using the personal history of the last 20 collected data points (PH)
-def zScorePH20Points(filecsv, filecsvGP):
+def moving20PointAvgPH(filecsv, filecsvGP):
   processedData = dataWithFormScore(filecsv)
 
   generalPopulationData = loadGPscores_oneUser(filecsvGP)
@@ -1517,7 +1517,7 @@ def zScorePH20Points(filecsv, filecsvGP):
     meanPH = []
     stdPH = []
 
-    for i,d in enumerate(data["dates"]):
+    for i, d in enumerate(data["dates"]):
       temp20PointData = []
        
       ## Less than 20 data points so we need to add the general population
@@ -1540,22 +1540,6 @@ def zScorePH20Points(filecsv, filecsvGP):
       "stdPH": stdPH
     }
 
-  # # Add z-score for the 90 day avg and std
-  # for param, data in individualAvgData.items():
-    
-  #   ## Initialize the z-score list 
-  #   zscoreData = []
-
-  #   for i, d in enumerate(data["dates"]):
-  #     if data["stdPH"][i] == 0:
-  #       zscoreData.append(0)
-  #     else: 
-  #       zscore = (data["values"][i] - data["meanPH"][i]) / data["stdPH"][i]
-  #       zscoreData.append(zscore)
-
-  #   ## Add z-score to the data in the object to return
-  #   individualAvgData[param]["zscorePH"] = zscoreData
-
   ## Returns object of parameters with dates, score values, means and stds using the 90 day personal history
   return individualAvgData, generalPopulationData
 
@@ -1566,7 +1550,7 @@ def zScoreAllDataGP(filecsv, filecsvGP):
 
   ## Already have the PH data from this function
   # individualAvgData, generalPopulationData = zScorePH90Days(filecsv, filecsvGP)
-  individualAvgData, generalPopulationData = zScorePH20Points(filecsv, filecsvGP)
+  individualAvgData, generalPopulationData = moving20PointAvgPH(filecsv, filecsvGP)
 
   # Add z-score for all data avg and std
   for param, data in individualAvgData.items():
@@ -1606,7 +1590,7 @@ def fourteenDayWeightedMovingAverageZScorePH(filecsv, filecsvGP):
       ## If date exists in the parameter's date list, use the recorded data
       if (d in data["dates"]):
         idx = data["dates"].index(d)
-        tempData.append(data["meanPH"][idx])
+        tempData.append(data["values"][idx])
       else:
         ## Put -1 as filler to filter out later
         tempData.append(-1)
@@ -1649,6 +1633,7 @@ def fourteenDayWeightedMovingAverageZScorePH(filecsv, filecsvGP):
     filteredData = []
     zscoreData = []
 
+    ## These are the dates the user submitted performance log data
     for k, userDate in enumerate(data["dates"]):
       dateIndex = allDates.index(userDate)
       meanData = tempMovingAverages[dateIndex]
@@ -1657,7 +1642,7 @@ def fourteenDayWeightedMovingAverageZScorePH(filecsv, filecsvGP):
       if data["stdPH"][k] == 0:
         zscoreData.append(0)
       else: 
-        zscore = (data["values"][k] - meanData) / data["stdPH"][k]
+        zscore = (meanData - data["meanPH"][k]) / data["stdPH"][k]
         zscoreData.append(zscore)
 
     ## Add weighted moving average and zscore data using personal history data
