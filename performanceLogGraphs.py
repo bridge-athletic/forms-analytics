@@ -40,92 +40,130 @@ import plotly.figure_factory as ff
 #### FUNCTION: takes a csv file with performance log data for one user
 #### NOTE: this function organizes raw data and does not convert to scores
 #### NOTE: not in use for calculating the bridge score
-# def loadData_oneUser(filecsv):
+def loadData_oneUser(filecsv):
 
-#   ## empty dictionary to be filled with performance log data
-#   individualPerformanceLogData = {
-#     "fatigue": {
-#       "dates": [],
-#       "values": []
-#     },
-#     "soreness": {
-#       "dates": [],
-#       "values": []
-#     },
-#     "stress": {
-#       "dates": [],
-#       "values": []
-#     },
-#     "sleepQuality": {
-#       "dates": [],
-#       "values": []
-#     },
-#     "sleepQuantity": {
-#       "dates": [],
-#       "values": []
-#     },
-#     "nutrition": {
-#       "dates": [],
-#       "values": []
-#     },
-#     "hydration": {
-#       "dates": [],
-#       "values": []
-#     },
-#     "overall": {
-#       "dates": [],
-#       "values": []
-#     }
-#   }
+  ## empty dictionary to be filled with performance log data
+  individualPerformanceLogData = {
+    "fatigue": {
+      "dates": [],
+      "values": []
+    },
+    "soreness": {
+      "dates": [],
+      "values": []
+    },
+    "stress": {
+      "dates": [],
+      "values": []
+    },
+    "sleepQuality": {
+      "dates": [],
+      "values": []
+    },
+    "sleepQuantity": {
+      "dates": [],
+      "values": []
+    },
+    "nutrition": {
+      "dates": [],
+      "values": []
+    },
+    "hydration": {
+      "dates": [],
+      "values": []
+    },
+    "overall": {
+      "dates": [],
+      "values": []
+    }
+  }
 
-#   with open(filecsv) as performanceLogData:
-#     csvReader = csv.reader(performanceLogData)
+  with open(filecsv) as performanceLogData:
+    csvReader = csv.reader(performanceLogData)
 
-#     for row in csvReader:
-#       ## convert date to YYYY-MM-DD
-#       date = datetime.date.fromtimestamp(int(row[2]))
+    for row in csvReader:
+      ## convert date to YYYY-MM-DD
+      date = datetime.date.fromtimestamp(int(row[2]))
       
-#       ## fatigue data; parameterId 492
-#       if (int(row[1]) == 492):
-#         individualPerformanceLogData["fatigue"]["dates"].append(date)
-#         individualPerformanceLogData["fatigue"]["values"].append(int(row[3]))
+      ## fatigue data; parameterId 492
+      if (int(row[1]) == 492):
+        individualPerformanceLogData["fatigue"]["dates"].append(date)
+        individualPerformanceLogData["fatigue"]["values"].append(int(row[3]))
       
-#       ## soreness data; parameterId 493
-#       if (int(row[1]) == 493):
-#         individualPerformanceLogData["soreness"]["dates"].append(date)
-#         individualPerformanceLogData["soreness"]["values"].append(int(row[3]))
+      ## soreness data; parameterId 493
+      if (int(row[1]) == 493):
+        individualPerformanceLogData["soreness"]["dates"].append(date)
+        individualPerformanceLogData["soreness"]["values"].append(int(row[3]))
       
-#       ## stress data; parameterId 494
-#       if (int(row[1]) == 494):
-#         individualPerformanceLogData["stress"]["dates"].append(date)
-#         individualPerformanceLogData["stress"]["values"].append(int(row[3]))
+      ## stress data; parameterId 494
+      if (int(row[1]) == 494):
+        individualPerformanceLogData["stress"]["dates"].append(date)
+        individualPerformanceLogData["stress"]["values"].append(int(row[3]))
       
-#       ## sleepQuality data; parameterId 495
-#       if (int(row[1]) == 495):
-#         individualPerformanceLogData["sleepQuality"]["dates"].append(date)
-#         individualPerformanceLogData["sleepQuality"]["values"].append(int(row[3]))
+      ## sleepQuality data; parameterId 495
+      if (int(row[1]) == 495):
+        individualPerformanceLogData["sleepQuality"]["dates"].append(date)
+        individualPerformanceLogData["sleepQuality"]["values"].append(int(row[3]))
 
-#       ## sleepQuantity data; parameterId 614
-#       if (int(row[1]) == 495):
-#         individualPerformanceLogData["sleepQuantity"]["dates"].append(date)
-#         individualPerformanceLogData["sleepQuantity"]["values"].append((int(row[3]))/1000.0)
+      ## sleepQuantity data; parameterId 614
+      if (int(row[1]) == 614):
+        individualPerformanceLogData["sleepQuantity"]["dates"].append(date)
+        individualPerformanceLogData["sleepQuantity"]["values"].append((int(row[3]))/1000.0)
       
-#       ## nutrition data; parameterId 496
-#       if (int(row[1]) == 496):
-#         individualPerformanceLogData["nutrition"]["dates"].append(date)
-#         individualPerformanceLogData["nutrition"]["values"].append(int(row[3]))
+      ## nutrition data; parameterId 496
+      if (int(row[1]) == 496):
+        individualPerformanceLogData["nutrition"]["dates"].append(date)
+        individualPerformanceLogData["nutrition"]["values"].append(int(row[3]))
       
-#       ## hydration data; parameterId 497
-#       if (int(row[1]) == 497):
-#         individualPerformanceLogData["hydration"]["dates"].append(date)
-#         individualPerformanceLogData["hydration"]["values"].append(int(row[3]))
+      ## hydration data; parameterId 497
+      if (int(row[1]) == 497):
+        individualPerformanceLogData["hydration"]["dates"].append(date)
+        individualPerformanceLogData["hydration"]["values"].append(int(row[3]))
       
-#       ## overall data; parameterId 498
-#       if (int(row[1]) == 498):
-#         individualPerformanceLogData["overall"]["dates"].append(date)
-#         individualPerformanceLogData["overall"]["values"].append(int(row[3]))
+      ## overall data; parameterId 498
+      if (int(row[1]) == 498):
+        individualPerformanceLogData["overall"]["dates"].append(date)
+        individualPerformanceLogData["overall"]["values"].append(int(row[3]))
 
-#   return individualPerformanceLogData
+  print individualPerformanceLogData
+  return individualPerformanceLogData
+
+def tableRawUserInput(filecsv):
+  rawUserDataData = loadData_oneUser(filecsv)
+
+  print rawUserDataData
+
+  finalCSVData = {}
+
+  ## Get list of all dates for bridge scores
+  datesRaw = []
+  for param, data in rawUserDataData.items():
+    finalCSVData[param] = []
+    datesRaw += data["dates"]
+
+  ## List of dates for every piece of data 
+  finalCSVData["dates"] = sorted(list(set(datesRaw)))
+  print finalCSVData["dates"]
+
+  for i, d in enumerate(finalCSVData["dates"]):
+
+    ## Go through each param and construct list of values that match the dates
+    for param, data in rawUserDataData.items():
+      if d in data["dates"]:
+        didx = data["dates"].index(d)
+        finalCSVData[param].append(data["values"][didx])
+      else:
+        finalCSVData[param].append(-1)
+
+  with open('8117_raw_data.csv', 'wb') as rawDataTable:
+    writer = csv.writer(rawDataTable)
+
+    for param, data in finalCSVData.items():
+      scoreData = copy.deepcopy(data)
+      scoreData.insert(int(0), param)
+      writer.writerow([(round((x*1.0),4)) if (isinstance(x, float) or isinstance(x, int)) else x for x in scoreData])
+
+
 
 
 #### FUNCTION: takes a csv file with performance log data for one user 
@@ -1773,13 +1811,8 @@ def tableBridgeScores(filecsv, filecsvGP):
       else:
         finalCSVData[param].append(-1)
 
-  with open('8158_bridge_score_data.csv', 'wb') as bridgeScoreTable:
+  with open('8117_bridge_score_data.csv', 'wb') as bridgeScoreTable:
     writer = csv.writer(bridgeScoreTable)
-    dates = copy.deepcopy(finalCSVData["dates"])
-    
-    ## want first cell to be empty so just add today's date
-    dates.insert(0, datetime.datetime.now())
-    writer.writerow([datetime.date.isoformat(d) for d in dates])
 
     for param, data in finalCSVData.items():
       scoreData = copy.deepcopy(data)
